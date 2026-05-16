@@ -94,6 +94,7 @@ Export all relevant Bob task history markdown files and task session consumption
 
 See:
 
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md)
 - [`docs/bob-workflow.md`](./docs/bob-workflow.md)
 - [`docs/bob-prompts.md`](./docs/bob-prompts.md)
 - [`docs/demo-script.md`](./docs/demo-script.md)

@@ -36,6 +36,8 @@ node scripts/serve.mjs
 
 Use a fine-grained personal access token with repository contents read access only. Never commit this token, paste it into frontend files, or include it in screenshots.
 
+Public repositories still work without a token. If a private repository says it was not found, check that the token has access to that exact repo and that any required organization SSO authorization is complete.
+
 ## 3. Get The Latest Code Before Editing
 
 ```bash

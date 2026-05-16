@@ -70,11 +70,7 @@ async function handleAnalyzeRequest(url, response) {
     });
   } catch (error) {
     const status = error.status || 500;
-    const privateHint =
-      status === 404
-        ? "Repository not found. If this is private, start the server with GITHUB_TOKEN set to a token that has read access."
-        : error.message;
-    sendJson(response, status, { error: privateHint });
+    sendJson(response, status, { error: formatGithubError(status) });
   }
 }
 
@@ -123,4 +119,20 @@ function sendJson(response, status, payload) {
     "cache-control": "no-store",
   });
   response.end(JSON.stringify(payload));
+}
+
+function formatGithubError(status) {
+  if (status === 401) {
+    return "GitHub rejected GITHUB_TOKEN. Check that the token is valid, not expired, and pasted without extra spaces.";
+  }
+
+  if (status === 403) {
+    return "GitHub denied access. Check token permissions, SSO authorization, rate limits, and repository access.";
+  }
+
+  if (status === 404) {
+    return "Repository not found through authenticated access. If this is private, the token must have read access to that exact repo.";
+  }
+
+  return `GitHub API request failed with ${status}.`;
 }

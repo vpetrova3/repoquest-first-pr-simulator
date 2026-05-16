@@ -231,6 +231,15 @@ async function analyzeRepository(url) {
   setStatus("Analyzing repo", "loader-circle");
 
   try {
+    try {
+      const publicAnalysis = await fetchPublicGitHubAnalysis(parsed);
+      setAnalysis(buildHeuristicAnalysis(publicAnalysis.repo, publicAnalysis.paths));
+      setStatus("Analysis ready", "badge-check");
+      return;
+    } catch (publicError) {
+      console.info("Public GitHub analysis failed, trying token-backed server route.", publicError);
+    }
+
     const serverAnalysis = await fetchServerAnalysis(url);
     if (serverAnalysis) {
       setAnalysis(buildHeuristicAnalysis(serverAnalysis.repo, serverAnalysis.paths, serverAnalysis.authenticated));
@@ -238,9 +247,7 @@ async function analyzeRepository(url) {
       return;
     }
 
-    const publicAnalysis = await fetchPublicGitHubAnalysis(parsed);
-    setAnalysis(buildHeuristicAnalysis(publicAnalysis.repo, publicAnalysis.paths));
-    setStatus("Analysis ready", "badge-check");
+    throw new Error("Repository analysis failed. Private repositories require the local server and GITHUB_TOKEN.");
   } catch (error) {
     console.error(error);
     setStatus(error.message || "Demo fallback loaded", "circle-alert");
@@ -275,14 +282,22 @@ async function fetchServerAnalysis(repoUrl) {
 async function fetchPublicGitHubAnalysis(parsed) {
   const repoResponse = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`);
   if (!repoResponse.ok) {
-    throw new Error("Repository metadata request failed.");
+    const error = new Error(
+      repoResponse.status === 404
+        ? "Public GitHub access failed. If this is private, RepoQuest will try the local token-backed route."
+        : `Public GitHub metadata request failed with ${repoResponse.status}.`,
+    );
+    error.status = repoResponse.status;
+    throw error;
   }
   const repo = await repoResponse.json();
   const treeResponse = await fetch(
     `https://api.github.com/repos/${parsed.owner}/${parsed.repo}/git/trees/${repo.default_branch}?recursive=1`,
   );
   if (!treeResponse.ok) {
-    throw new Error("Repository tree request failed.");
+    const error = new Error(`Public GitHub tree request failed with ${treeResponse.status}.`);
+    error.status = treeResponse.status;
+    throw error;
   }
   const tree = await treeResponse.json();
   const paths = (tree.tree || [])

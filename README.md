@@ -24,7 +24,9 @@ No package install is required. The prototype is dependency-free so it can run d
 
 ## Private Repositories
 
-Public repositories work with no token. Private repositories require a GitHub token because the browser cannot read private GitHub data by itself.
+Public repositories work immediately with no token. RepoQuest tries public GitHub access first, so public repos do not depend on `GITHUB_TOKEN`.
+
+Private repositories require a GitHub token because the browser cannot read private GitHub data by itself.
 
 Use a fine-grained GitHub personal access token with read-only access to the private repository contents. Do not commit the token.
 
@@ -36,6 +38,8 @@ node scripts/serve.mjs
 ```
 
 Then open `http://localhost:4173` and paste the private GitHub repository URL.
+
+If a private repo still says it was not found, the token is usually missing access to that exact repository, expired, pasted incorrectly, or blocked by organization SSO settings.
 
 For deployment, set `GITHUB_TOKEN` as a private environment variable on the hosting platform. Never put the token in `app.js`, `index.html`, screenshots, commits, or `bob_sessions/`.
 

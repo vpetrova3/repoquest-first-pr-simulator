@@ -1778,12 +1778,14 @@ function renderRadarChart(radar) {
     return;
   }
 
+  const radarPalette = ["#2dbfa8", "#6a8fd9", "#f0b35f", "#a77be8", "#8ee85f"];
   const size = 240;
   const center = size / 2;
   const radius = size * 0.42;
-  const items = radar.slice(0, 5).map((item) => ({
+  const items = radar.slice(0, 5).map((item, index) => ({
     label: item.label || "Mission task",
-    score: Math.max(0, Math.min(100, Number(item.score) || 0))
+    score: Math.max(0, Math.min(100, Number(item.score) || 0)),
+    color: radarPalette[index % radarPalette.length],
   }));
   const count = items.length;
   const angleFor = (i) => (Math.PI * 2 * i) / count - Math.PI / 2;
@@ -1827,15 +1829,32 @@ function renderRadarChart(radar) {
       const ratio = Math.max(0, Math.min(1, (item.score || 0) / 100));
       const x = center + Math.cos(a) * radius * ratio;
       const y = center + Math.sin(a) * radius * ratio;
-      return `<circle class="radar-dot" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4.5" />`;
+      return `<circle class="radar-dot" style="--radar-color: ${item.color};" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4.5" />`;
+    })
+    .join("");
+
+  const dotLabels = items
+    .map((item, i) => {
+      const a = angleFor(i);
+      const ratio = Math.max(0, Math.min(1, (item.score || 0) / 100));
+      const dotX = center + Math.cos(a) * radius * ratio;
+      const dotY = center + Math.sin(a) * radius * ratio;
+      const labelX = Math.max(13, Math.min(size - 13, dotX + Math.cos(a) * 16));
+      const labelY = Math.max(13, Math.min(size - 13, dotY + Math.sin(a) * 16));
+      return `
+        <g class="radar-dot-label" style="--radar-color: ${item.color};" transform="translate(${labelX.toFixed(2)} ${labelY.toFixed(2)})">
+          <circle r="8" />
+          <text y="0.4">${i + 1}</text>
+        </g>
+      `;
     })
     .join("");
 
   const legend = items
-    .map((item) => {
+    .map((item, i) => {
       return `
-        <div class="radar-legend-item">
-          <span class="radar-legend-dot" aria-hidden="true"></span>
+        <div class="radar-legend-item" style="--radar-color: ${item.color};">
+          <span class="radar-legend-dot" aria-hidden="true">${i + 1}</span>
           <span class="radar-legend-label">${escapeHtml(item.label)}</span>
           <span class="radar-legend-value">${item.score}%</span>
         </div>
@@ -1851,6 +1870,7 @@ function renderRadarChart(radar) {
         ${axes}
         <polygon class="radar-shape" points="${shapePoints}" />
         ${dots}
+        ${dotLabels}
       </svg>
     </div>
     <div class="radar-legend" aria-hidden="true">

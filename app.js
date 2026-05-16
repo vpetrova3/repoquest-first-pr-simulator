@@ -1092,7 +1092,7 @@ function renderRecentAnalyses() {
       (item) => `
         <button class="recent-item" type="button" data-url="${escapeHtml(item.url || "")}">
           <i data-lucide="git-branch" aria-hidden="true"></i>
-          <span class="recent-item-path">${escapeHtml(item.fullName || "")}</span>
+          <span class="recent-item-path" title="${escapeHtml(item.fullName || "")}">${escapeHtml(item.fullName || "")}</span>
           <span class="recent-item-score">${item.score}%</span>
         </button>
       `,

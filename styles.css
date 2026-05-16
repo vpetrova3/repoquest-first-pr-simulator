@@ -364,6 +364,7 @@ code, pre, .mono {
 
 .panel-section { padding: 22px; }
 .panel-section.compact { padding: 18px 20px; }
+#recentSection { overflow: hidden; }
 
 .section-kicker {
   margin-bottom: 10px;
@@ -1553,13 +1554,18 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 .recent-list {
   display: grid;
   gap: 6px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .recent-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 9px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
@@ -1569,6 +1575,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   font-family: "JetBrains Mono", ui-monospace, monospace;
   transition: var(--transition);
   text-align: left;
+  overflow: hidden;
 }
 
 .recent-item:hover {
@@ -1579,13 +1586,20 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 
 .recent-item svg { width: 13px; height: 13px; color: var(--muted); flex-shrink: 0; }
 
-.recent-item-path { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recent-item-path {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .recent-item-score {
+  justify-self: end;
   font-size: 0.74rem;
   font-weight: 800;
   color: var(--teal);
   font-family: "Inter", sans-serif;
+  white-space: nowrap;
 }
 
 .try-chip {

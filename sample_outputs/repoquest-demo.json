@@ -1,0 +1,19 @@
+{
+  "repo": {
+    "name": "TodoMVC",
+    "url": "https://github.com/tastejs/todomvc",
+    "summary": "A prepared RepoQuest demo showing how a new contributor can move from repository overview to mission path to first PR plan."
+  },
+  "missions": [
+    "Trace a todo from input to screen",
+    "Compare two framework implementations",
+    "Find the safest documentation improvement",
+    "Add a validation or empty-state note",
+    "Prepare the first PR package"
+  ],
+  "firstPr": {
+    "title": "Clarify local setup instructions for one TodoMVC example",
+    "risk": "Low"
+  },
+  "note": "Use IBM Bob IDE to validate and replace this sample output with repository-specific exports before final submission."
+}

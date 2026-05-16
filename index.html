@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="RepoQuest turns a GitHub repository into a guided first pull request journey."
+    />
+    <title>RepoQuest: First PR Simulator</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#workspace" aria-label="RepoQuest workspace">
+          <span class="brand-mark" aria-hidden="true">RQ</span>
+          <span>
+            <strong>RepoQuest</strong>
+            <small>First PR Simulator</small>
+          </span>
+        </a>
+        <nav class="topnav" aria-label="Workspace sections">
+          <a href="#overview">Overview</a>
+          <a href="#missions">Missions</a>
+          <a href="#pr-plan">PR Plan</a>
+          <a href="#readiness">Report</a>
+        </nav>
+        <div class="status-pill" id="repoStatus">
+          <i data-lucide="circle-dot" aria-hidden="true"></i>
+          Ready
+        </div>
+      </header>
+
+      <main class="workspace" id="workspace">
+        <aside class="control-panel" aria-label="Repository controls">
+          <section class="panel-section">
+            <div class="section-kicker">Repository</div>
+            <h1>Build a first contribution path.</h1>
+            <form id="repoForm" class="repo-form">
+              <label for="repoUrl">GitHub repository URL</label>
+              <div class="input-row">
+                <input
+                  id="repoUrl"
+                  name="repoUrl"
+                  type="url"
+                  value="https://github.com/tastejs/todomvc"
+                  placeholder="https://github.com/owner/repo"
+                  autocomplete="off"
+                  required
+                />
+                <button class="icon-button primary" type="submit" aria-label="Analyze repository">
+                  <i data-lucide="scan-search" aria-hidden="true"></i>
+                  <span>Analyze</span>
+                </button>
+              </div>
+            </form>
+            <div class="button-row">
+              <button class="ghost-button" type="button" id="demoButton">
+                <i data-lucide="sparkles" aria-hidden="true"></i>
+                <span>Use Demo</span>
+              </button>
+              <button class="ghost-button" type="button" id="promptButton">
+                <i data-lucide="clipboard-list" aria-hidden="true"></i>
+                <span>Bob Prompt</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="panel-section compact" aria-labelledby="bobEvidenceTitle">
+            <div class="panel-heading">
+              <i data-lucide="bot" aria-hidden="true"></i>
+              <h2 id="bobEvidenceTitle">IBM Bob Evidence</h2>
+            </div>
+            <ul class="evidence-list" id="evidenceList"></ul>
+          </section>
+
+          <section class="panel-section compact" aria-labelledby="submissionTitle">
+            <div class="panel-heading">
+              <i data-lucide="send" aria-hidden="true"></i>
+              <h2 id="submissionTitle">Submission Assets</h2>
+            </div>
+            <div class="asset-grid">
+              <span>Public repo</span>
+              <strong>Ready</strong>
+              <span>Demo URL</span>
+              <strong>Needed</strong>
+              <span>Bob exports</span>
+              <strong>Needed</strong>
+              <span>Video</span>
+              <strong>Needed</strong>
+            </div>
+          </section>
+        </aside>
+
+        <section class="main-stage" aria-live="polite">
+          <section class="repo-brief" id="overview">
+            <div>
+              <div class="section-kicker">Repository Overview</div>
+              <h2 id="repoName">TodoMVC</h2>
+              <p id="repoSummary">
+                A prepared RepoQuest demo is loaded. Replace it with a public GitHub repository URL when
+                your team is ready to test live analysis.
+              </p>
+            </div>
+            <div class="score-tile" aria-label="First PR readiness score">
+              <span id="readinessScore">86</span>
+              <small>readiness</small>
+            </div>
+          </section>
+
+          <section class="insight-grid" aria-label="Repository insights">
+            <article class="metric-card">
+              <span>Tech Stack</span>
+              <strong id="techStack">JavaScript, HTML, CSS, Testing</strong>
+            </article>
+            <article class="metric-card">
+              <span>Key Files</span>
+              <strong id="keyFileCount">7</strong>
+            </article>
+            <article class="metric-card">
+              <span>Mission Path</span>
+              <strong id="missionCount">5 steps</strong>
+            </article>
+            <article class="metric-card">
+              <span>First PR Risk</span>
+              <strong id="riskLevel">Low</strong>
+            </article>
+          </section>
+
+          <section class="map-and-files">
+            <article class="architecture-panel" aria-labelledby="architectureTitle">
+              <div class="section-header">
+                <div>
+                  <div class="section-kicker">Architecture Map</div>
+                  <h2 id="architectureTitle">How the repo fits together</h2>
+                </div>
+                <i data-lucide="git-branch" aria-hidden="true"></i>
+              </div>
+              <div class="arch-map" id="architectureMap"></div>
+            </article>
+
+            <article class="files-panel" aria-labelledby="filesTitle">
+              <div class="section-header">
+                <div>
+                  <div class="section-kicker">Starter Files</div>
+                  <h2 id="filesTitle">Where to look first</h2>
+                </div>
+                <i data-lucide="folder-search" aria-hidden="true"></i>
+              </div>
+              <ol class="file-list" id="importantFiles"></ol>
+            </article>
+          </section>
+
+          <section class="missions-section" id="missions">
+            <div class="section-header">
+              <div>
+                <div class="section-kicker">Guided Missions</div>
+                <h2>Learn the repo by doing</h2>
+              </div>
+              <div class="segmented" role="tablist" aria-label="Mission filters">
+                <button class="segment active" type="button" data-filter="all">All</button>
+                <button class="segment" type="button" data-filter="Beginner">Beginner</button>
+                <button class="segment" type="button" data-filter="Medium">Medium</button>
+              </div>
+            </div>
+            <div class="mission-layout">
+              <div class="mission-list" id="missionList"></div>
+              <article class="mission-detail" id="missionDetail" aria-label="Selected mission"></article>
+            </div>
+          </section>
+
+          <section class="pr-section" id="pr-plan">
+            <div class="section-header">
+              <div>
+                <div class="section-kicker">First PR Plan</div>
+                <h2 id="prTitle">Clarify setup instructions for new contributors</h2>
+              </div>
+              <button class="ghost-button" type="button" id="copyPlanButton">
+                <i data-lucide="copy" aria-hidden="true"></i>
+                <span>Copy Plan</span>
+              </button>
+            </div>
+            <div class="pr-grid">
+              <article class="pr-plan-card">
+                <h3>Implementation Steps</h3>
+                <ol id="implementationSteps"></ol>
+              </article>
+              <article class="pr-plan-card">
+                <h3>Test Plan</h3>
+                <ol id="testPlan"></ol>
+              </article>
+              <article class="pr-plan-card">
+                <h3>Reviewer Checklist</h3>
+                <ol id="reviewerChecklist"></ol>
+              </article>
+            </div>
+          </section>
+
+          <section class="readiness-section" id="readiness">
+            <div class="section-header">
+              <div>
+                <div class="section-kicker">Readiness Report</div>
+                <h2>Contribution confidence</h2>
+              </div>
+              <i data-lucide="badge-check" aria-hidden="true"></i>
+            </div>
+            <div class="report-grid">
+              <div class="report-panel">
+                <h3>Concepts Learned</h3>
+                <ul id="conceptsLearned"></ul>
+              </div>
+              <div class="report-panel">
+                <h3>Difficulty Radar</h3>
+                <div class="radar-list" id="difficultyRadar"></div>
+              </div>
+              <div class="report-panel">
+                <h3>Next Steps</h3>
+                <ul id="nextSteps"></ul>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="promptDialog" class="prompt-dialog">
+      <form method="dialog">
+        <div class="dialog-header">
+          <h2>IBM Bob Prompt Pack</h2>
+          <button class="icon-only" type="submit" aria-label="Close prompt dialog">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </div>
+        <textarea id="promptText" readonly></textarea>
+        <div class="dialog-actions">
+          <button class="ghost-button" type="button" id="copyPromptButton">
+            <i data-lucide="copy" aria-hidden="true"></i>
+            <span>Copy Prompt</span>
+          </button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

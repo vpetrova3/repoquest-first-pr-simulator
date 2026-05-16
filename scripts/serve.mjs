@@ -1,6 +1,10 @@
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { createServer } from "node:http";
+import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
+
+dotenv.config({ path: resolve(fileURLToPath(new URL("..", import.meta.url)), ".env") });
 
 const root = resolve(process.cwd());
 const port = Number(process.env.PORT || 4173);

@@ -2,7 +2,11 @@ const state = {
   analysis: null,
   selectedMission: 0,
   missionFilter: "all",
+  llm: { enabled: false, model: "", checked: false },
+  enhancingId: 0,
 };
+
+const llmCache = new Map();
 
 const demoAnalysis = {
   source: "Prepared demo output",
@@ -174,12 +178,63 @@ const selectors = {
   conceptsLearned: document.querySelector("#conceptsLearned"),
   difficultyRadar: document.querySelector("#difficultyRadar"),
   nextSteps: document.querySelector("#nextSteps"),
+  aiBadge: document.querySelector("#aiBadge"),
+  aiBadgeLabel: document.querySelector("#aiBadgeLabel"),
 };
 
 function initialize() {
   setAnalysis(demoAnalysis);
   bindEvents();
   refreshIcons();
+  checkLlmStatus();
+}
+
+async function checkLlmStatus() {
+  try {
+    const response = await fetch("/api/llm/status");
+    if (!response.ok) throw new Error(`status ${response.status}`);
+    const payload = await response.json();
+    state.llm = { enabled: Boolean(payload.enabled), model: payload.model || "", checked: true };
+  } catch {
+    state.llm = { enabled: false, model: "", checked: true };
+  }
+  updateAiBadge("idle");
+}
+
+function updateAiBadge(mode) {
+  if (!selectors.aiBadge || !selectors.aiBadgeLabel) return;
+  const { enabled, model } = state.llm;
+  const modelLabel = model ? prettyModelName(model) : "Granite";
+  selectors.aiBadge.classList.remove("hidden", "thinking", "ready", "off");
+
+  if (!enabled) {
+    selectors.aiBadge.classList.add("off");
+    selectors.aiBadgeLabel.textContent = "watsonx offline · heuristic mode";
+    refreshIcons();
+    return;
+  }
+
+  if (mode === "thinking") {
+    selectors.aiBadge.classList.add("thinking");
+    selectors.aiBadgeLabel.textContent = `${modelLabel} · enhancing…`;
+  } else if (mode === "ready") {
+    selectors.aiBadge.classList.add("ready");
+    selectors.aiBadgeLabel.textContent = `${modelLabel} · live`;
+  } else {
+    selectors.aiBadgeLabel.textContent = `IBM watsonx · ${modelLabel}`;
+  }
+  refreshIcons();
+}
+
+function prettyModelName(modelId) {
+  if (!modelId) return "Granite";
+  const tail = modelId.split("/").pop() || modelId;
+  return tail
+    .replace(/^ibm-/, "")
+    .replace(/^granite-?/i, "Granite ")
+    .replace(/-instruct$/i, "")
+    .replace(/-/g, " ")
+    .trim();
 }
 
 function bindEvents() {
@@ -231,23 +286,36 @@ async function analyzeRepository(url) {
   setStatus("Analyzing repo", "loader-circle");
 
   try {
+    let baseAnalysis = null;
+    let paths = null;
+
     try {
       const publicAnalysis = await fetchPublicGitHubAnalysis(parsed);
-      setAnalysis(buildHeuristicAnalysis(publicAnalysis.repo, publicAnalysis.paths));
-      setStatus("Analysis ready", "badge-check");
-      return;
+      baseAnalysis = buildHeuristicAnalysis(publicAnalysis.repo, publicAnalysis.paths);
+      paths = publicAnalysis.paths;
     } catch (publicError) {
       console.info("Public GitHub analysis failed, trying token-backed server route.", publicError);
     }
 
-    const serverAnalysis = await fetchServerAnalysis(url);
-    if (serverAnalysis) {
-      setAnalysis(buildHeuristicAnalysis(serverAnalysis.repo, serverAnalysis.paths, serverAnalysis.authenticated));
-      setStatus(serverAnalysis.repo.private ? "Private analysis ready" : "Analysis ready", "badge-check");
-      return;
+    if (!baseAnalysis) {
+      const serverAnalysis = await fetchServerAnalysis(url);
+      if (serverAnalysis) {
+        baseAnalysis = buildHeuristicAnalysis(serverAnalysis.repo, serverAnalysis.paths, serverAnalysis.authenticated);
+        paths = serverAnalysis.paths;
+      }
     }
 
-    throw new Error("Repository analysis failed. Private repositories require the local server and GITHUB_TOKEN.");
+    if (!baseAnalysis) {
+      throw new Error("Repository analysis failed. Private repositories require the local server and GITHUB_TOKEN.");
+    }
+
+    setAnalysis(baseAnalysis);
+    setStatus("Heuristic pass ready", "badge-check");
+
+    if (state.llm.enabled && paths) {
+      enhanceWithLlm(baseAnalysis, paths);
+    }
+    return;
   } catch (error) {
     console.error(error);
     setStatus(error.message || "Demo fallback loaded", "circle-alert");
@@ -260,6 +328,230 @@ async function analyzeRepository(url) {
           "Live GitHub analysis was unavailable in this browser session, so RepoQuest loaded the prepared demo flow.",
       },
     });
+  }
+}
+
+async function enhanceWithLlm(baseAnalysis, paths) {
+  const runId = ++state.enhancingId;
+  const cacheKey = baseAnalysis.repo.url || baseAnalysis.repo.fullName;
+
+  if (llmCache.has(cacheKey)) {
+    applyLlmEnhancements(baseAnalysis, llmCache.get(cacheKey), runId);
+    return;
+  }
+
+  updateAiBadge("thinking");
+  setStatus("watsonx enhancing", "sparkles");
+
+  const ctx = buildLlmContext(baseAnalysis, paths);
+
+  const enhancements = {};
+  try {
+    const [summary, missions, firstPr] = await Promise.allSettled([
+      callLlm(promptForSummary(ctx), { maxTokens: 220, temperature: 0.3 }),
+      callLlm(promptForMissions(ctx), { maxTokens: 1100, temperature: 0.35 }),
+      callLlm(promptForFirstPr(ctx), { maxTokens: 700, temperature: 0.3 }),
+    ]);
+
+    if (summary.status === "fulfilled") enhancements.summary = parseJsonish(summary.value)?.summary;
+    if (missions.status === "fulfilled") enhancements.missions = parseJsonish(missions.value)?.missions;
+    if (firstPr.status === "fulfilled") enhancements.firstPr = parseJsonish(firstPr.value)?.firstPr;
+
+    llmCache.set(cacheKey, enhancements);
+    applyLlmEnhancements(baseAnalysis, enhancements, runId);
+  } catch (error) {
+    console.warn("watsonx enhancement failed:", error);
+    setStatus("watsonx unavailable · using heuristics", "circle-alert");
+    updateAiBadge("idle");
+  }
+}
+
+function applyLlmEnhancements(baseAnalysis, enhancements, runId) {
+  if (runId !== state.enhancingId) return;
+
+  const next = { ...baseAnalysis };
+  next.repo = { ...baseAnalysis.repo };
+  let touched = false;
+
+  if (enhancements.summary && typeof enhancements.summary === "string") {
+    next.repo.summary = enhancements.summary;
+    touched = true;
+  }
+
+  if (Array.isArray(enhancements.missions) && enhancements.missions.length) {
+    next.missions = enhancements.missions.map((mission) => normalizeMission(mission));
+    touched = true;
+  }
+
+  if (enhancements.firstPr && typeof enhancements.firstPr === "object") {
+    next.firstPr = normalizeFirstPr(enhancements.firstPr, baseAnalysis.firstPr);
+    touched = true;
+  }
+
+  if (touched) {
+    next.source = "IBM watsonx (Granite) live analysis";
+    next.evidence = [
+      `watsonx generated repository understanding for ${baseAnalysis.repo.fullName || baseAnalysis.repo.name}.`,
+      "Heuristic pass produced the initial map; Granite refined missions, summary, and first PR plan in the live app.",
+      "Run Bob IDE prompts in parallel to capture session evidence for bob_sessions/.",
+      "Demo video should show the moment the watsonx badge flips from 'enhancing' to 'live'.",
+    ];
+    setAnalysis(next);
+  }
+
+  setStatus("Analysis ready · AI live", "badge-check");
+  updateAiBadge("ready");
+}
+
+function normalizeMission(mission) {
+  return {
+    title: String(mission.title || "Untitled mission"),
+    difficulty: ["Beginner", "Medium", "Hard"].includes(mission.difficulty) ? mission.difficulty : "Beginner",
+    time: String(mission.time || "20 min"),
+    goal: String(mission.goal || ""),
+    files: Array.isArray(mission.files) ? mission.files.slice(0, 5).map(String) : [],
+    hints: Array.isArray(mission.hints) ? mission.hints.slice(0, 4).map(String) : [],
+    test: String(mission.test || ""),
+    outcome: String(mission.outcome || ""),
+  };
+}
+
+function normalizeFirstPr(generated, fallback) {
+  return {
+    title: String(generated.title || fallback.title),
+    risk: ["Low", "Medium", "High"].includes(generated.risk) ? generated.risk : fallback.risk,
+    files: Array.isArray(generated.files) && generated.files.length ? generated.files.slice(0, 6).map(String) : fallback.files,
+    steps: Array.isArray(generated.steps) && generated.steps.length ? generated.steps.slice(0, 8).map(String) : fallback.steps,
+    tests: Array.isArray(generated.tests) && generated.tests.length ? generated.tests.slice(0, 6).map(String) : fallback.tests,
+    checklist:
+      Array.isArray(generated.checklist) && generated.checklist.length
+        ? generated.checklist.slice(0, 6).map(String)
+        : fallback.checklist,
+  };
+}
+
+function buildLlmContext(analysis, paths) {
+  const sampledPaths = paths.slice(0, 60);
+  return {
+    repoName: analysis.repo.fullName || analysis.repo.name,
+    summary: analysis.repo.summary,
+    techStack: analysis.repo.techStack,
+    importantFiles: analysis.repo.importantFiles,
+    pathSample: sampledPaths,
+    totalPaths: paths.length,
+  };
+}
+
+function promptForSummary(ctx) {
+  return `You are RepoQuest's analyst. Read the repository signal and produce a crisp two-sentence summary for a brand-new contributor.
+
+Repository: ${ctx.repoName}
+Tech stack heuristic: ${ctx.techStack.join(", ")}
+Key files: ${ctx.importantFiles.join(", ")}
+File-path sample (${ctx.pathSample.length} of ${ctx.totalPaths}):
+${ctx.pathSample.map((p) => `- ${p}`).join("\n")}
+
+Rules:
+- Sentence 1: what the project is and who uses it.
+- Sentence 2: where a first-time contributor should start.
+- Be specific. No marketing language. No emojis.
+
+Return JSON only, matching this shape:
+{"summary": "..."}`;
+}
+
+function promptForMissions(ctx) {
+  return `You are RepoQuest's onboarding designer. Generate exactly 5 first-PR onboarding missions tailored to this real repository.
+
+Repository: ${ctx.repoName}
+Tech stack: ${ctx.techStack.join(", ")}
+Important files: ${ctx.importantFiles.join(", ")}
+File-path sample:
+${ctx.pathSample.map((p) => `- ${p}`).join("\n")}
+
+Mission rules:
+- Each mission teaches a real, concrete part of THIS repo. Reference actual paths from the sample above.
+- Difficulty must be "Beginner" or "Medium". The first 3 missions should be Beginner.
+- Three progressive hints per mission, ordered from gentle nudge to specific pointer.
+- Suggested test should be runnable or a clear manual checklist.
+- Each mission should be completable in 15-40 minutes.
+
+Return JSON only:
+{
+  "missions": [
+    {
+      "title": "...",
+      "difficulty": "Beginner",
+      "time": "20 min",
+      "goal": "...",
+      "files": ["path/from/sample"],
+      "hints": ["...", "...", "..."],
+      "test": "...",
+      "outcome": "..."
+    }
+  ]
+}`;
+}
+
+function promptForFirstPr(ctx) {
+  return `You are RepoQuest recommending the safest meaningful first pull request for this repository.
+
+Repository: ${ctx.repoName}
+Tech stack: ${ctx.techStack.join(", ")}
+Important files: ${ctx.importantFiles.join(", ")}
+File-path sample:
+${ctx.pathSample.map((p) => `- ${p}`).join("\n")}
+
+Rules:
+- Pick a real improvement a maintainer would accept (typically docs, setup clarity, validation message, small refactor that is scoped to one file).
+- Title under 70 chars, specific to this repo.
+- Risk MUST be "Low" or "Medium".
+- Files MUST be paths from the sample above.
+- 4-6 implementation steps. 3-5 tests. 3-5 checklist items.
+- No vague language ("improve things", "make better"). Each step should be concrete.
+
+Return JSON only:
+{
+  "firstPr": {
+    "title": "...",
+    "risk": "Low",
+    "files": ["..."],
+    "steps": ["...", "..."],
+    "tests": ["..."],
+    "checklist": ["..."]
+  }
+}`;
+}
+
+async function callLlm(prompt, options = {}) {
+  const response = await fetch("/api/llm", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      prompt,
+      maxTokens: options.maxTokens || 800,
+      temperature: options.temperature ?? 0.2,
+    }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `LLM proxy returned ${response.status}`);
+  }
+  return payload.text || "";
+}
+
+function parseJsonish(text) {
+  if (!text) return null;
+  const trimmed = text.trim();
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenced ? fenced[1] : trimmed;
+  const start = candidate.indexOf("{");
+  const end = candidate.lastIndexOf("}");
+  if (start === -1 || end === -1 || end < start) return null;
+  try {
+    return JSON.parse(candidate.slice(start, end + 1));
+  } catch {
+    return null;
   }
 }
 

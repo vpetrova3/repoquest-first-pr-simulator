@@ -28,9 +28,16 @@
           <a href="#pr-plan">PR Plan</a>
           <a href="#readiness">Report</a>
         </nav>
-        <div class="status-pill" id="repoStatus">
-          <i data-lucide="circle-dot" aria-hidden="true"></i>
-          Ready
+        <div class="status-cluster">
+          <div class="status-pill ai-pill" id="aiBadge" aria-live="polite">
+            <span class="ai-dot" aria-hidden="true"></span>
+            <i data-lucide="sparkles" aria-hidden="true"></i>
+            <span id="aiBadgeLabel">IBM watsonx</span>
+          </div>
+          <div class="status-pill" id="repoStatus">
+            <i data-lucide="circle-dot" aria-hidden="true"></i>
+            Ready
+          </div>
         </div>
       </header>
 

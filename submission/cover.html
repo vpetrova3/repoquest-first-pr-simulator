@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>RepoQuest cover — 1600×900</title>
+    <style>
+      :root {
+        --bg: #0f1417;
+        --ink: #243145;
+        --teal: #2dbfa8;
+        --teal-soft: rgba(45, 191, 168, 0.18);
+        --blue: #6a8fd9;
+        --amber: #f0b35f;
+        --text: #f3f6f4;
+        --muted: rgba(243, 246, 244, 0.62);
+        --line: rgba(243, 246, 244, 0.16);
+        --surface: rgba(255, 255, 255, 0.04);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: var(--text);
+      }
+
+      .cover {
+        width: 1600px;
+        height: 900px;
+        position: relative;
+        overflow: hidden;
+        background:
+          radial-gradient(80% 60% at 18% 22%, rgba(45, 191, 168, 0.18) 0%, transparent 60%),
+          radial-gradient(70% 60% at 82% 78%, rgba(106, 143, 217, 0.18) 0%, transparent 60%),
+          linear-gradient(135deg, #0a0f12 0%, #11181d 50%, #0b1218 100%);
+      }
+
+      .grid-overlay {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 64px 64px;
+        mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 80%);
+      }
+
+      .header {
+        position: absolute;
+        top: 56px;
+        left: 72px;
+        right: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .brand-mark {
+        width: 64px;
+        height: 64px;
+        display: grid;
+        place-items: center;
+        background: var(--teal);
+        color: #062a25;
+        border-radius: 14px;
+        font-weight: 900;
+        font-size: 1.4rem;
+        letter-spacing: 1.5px;
+        box-shadow: 0 18px 50px rgba(45, 191, 168, 0.35);
+      }
+
+      .brand-text {
+        font-weight: 800;
+        letter-spacing: 0.6px;
+        font-size: 1.25rem;
+      }
+
+      .brand-text small {
+        display: block;
+        color: var(--muted);
+        font-weight: 700;
+        font-size: 0.86rem;
+        margin-top: 2px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .powered {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 0.92rem;
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .powered .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--teal);
+        box-shadow: 0 0 0 4px rgba(45, 191, 168, 0.22);
+      }
+
+      .stage {
+        position: absolute;
+        left: 72px;
+        right: 72px;
+        top: 200px;
+        bottom: 96px;
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 56px;
+        align-items: center;
+      }
+
+      .pitch h1 {
+        margin: 0 0 22px;
+        font-size: 6.4rem;
+        line-height: 0.96;
+        letter-spacing: -2.5px;
+        font-weight: 900;
+      }
+
+      .pitch h1 .accent { color: var(--teal); }
+
+      .pitch h2 {
+        margin: 0 0 28px;
+        font-size: 2.05rem;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: -0.3px;
+      }
+
+      .pitch p {
+        margin: 0;
+        font-size: 1.35rem;
+        line-height: 1.5;
+        color: var(--text);
+        max-width: 620px;
+      }
+
+      .tags {
+        margin-top: 36px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 0.92rem;
+        font-weight: 700;
+      }
+
+      .tag.teal { color: var(--teal); border-color: rgba(45, 191, 168, 0.45); }
+      .tag.blue { color: var(--blue); border-color: rgba(106, 143, 217, 0.45); }
+      .tag.amber { color: var(--amber); border-color: rgba(240, 179, 95, 0.45); }
+
+      .demo-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 32px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
+        display: grid;
+        gap: 20px;
+      }
+
+      .demo-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .demo-row .label {
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        min-width: 100px;
+      }
+
+      .demo-row .value {
+        flex: 1;
+        font-weight: 600;
+        font-size: 1.04rem;
+      }
+
+      .demo-row .pill {
+        padding: 5px 10px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        border-radius: 999px;
+        background: var(--teal-soft);
+        color: var(--teal);
+        white-space: nowrap;
+      }
+
+      .demo-flow {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        align-items: stretch;
+      }
+
+      .flow-step {
+        text-align: center;
+        padding: 10px 6px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .flow-step .num {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--teal);
+        letter-spacing: 1.2px;
+      }
+
+      .flow-step .name {
+        margin-top: 4px;
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .footer {
+        position: absolute;
+        left: 72px;
+        right: 72px;
+        bottom: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .footer strong { color: var(--text); }
+
+      .stripe {
+        position: absolute;
+        right: -180px;
+        top: 28px;
+        width: 540px;
+        height: 8px;
+        background: linear-gradient(90deg, transparent, var(--teal), transparent);
+        transform: rotate(-22deg);
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <div class="grid-overlay"></div>
+      <div class="stripe"></div>
+
+      <header class="header">
+        <div class="brand">
+          <div class="brand-mark">RQ</div>
+          <div class="brand-text">
+            RepoQuest
+            <small>First PR Simulator</small>
+          </div>
+        </div>
+        <div class="powered">
+          <span class="dot"></span>
+          Powered by IBM Bob &middot; watsonx Granite
+        </div>
+      </header>
+
+      <main class="stage">
+        <div class="pitch">
+          <h1>From <span class="accent">confusion</span><br />to contribution.</h1>
+          <h2>Guided first-PR onboarding for any GitHub repo.</h2>
+          <p>
+            RepoQuest turns an unfamiliar codebase into a guided journey — repo overview,
+            architecture map, beginner-safe missions, and a reviewer-ready first PR plan.
+            Designed with IBM Bob. Powered live by watsonx Granite.
+          </p>
+          <div class="tags">
+            <span class="tag teal">IBM Bob hackathon</span>
+            <span class="tag blue">watsonx Granite</span>
+            <span class="tag amber">Developer onboarding</span>
+          </div>
+        </div>
+
+        <aside class="demo-card">
+          <div class="demo-row">
+            <span class="label">Repo</span>
+            <span class="value">tastejs/todomvc</span>
+            <span class="pill">Analyzing</span>
+          </div>
+          <div class="demo-row">
+            <span class="label">AI status</span>
+            <span class="value">Granite 3.3 · live</span>
+            <span class="pill">enhancing</span>
+          </div>
+          <div class="demo-flow">
+            <div class="flow-step"><div class="num">01</div><div class="name">Paste URL</div></div>
+            <div class="flow-step"><div class="num">02</div><div class="name">Overview</div></div>
+            <div class="flow-step"><div class="num">03</div><div class="name">Missions</div></div>
+            <div class="flow-step"><div class="num">04</div><div class="name">PR plan</div></div>
+            <div class="flow-step"><div class="num">05</div><div class="name">Ship</div></div>
+          </div>
+          <div class="demo-row">
+            <span class="label">Readiness</span>
+            <span class="value">First PR ready &middot; risk Low</span>
+            <span class="pill">94 %</span>
+          </div>
+        </aside>
+      </main>
+
+      <footer class="footer">
+        <div><strong>lablab.ai</strong> &middot; IBM Bob Hackathon &middot; May 2026</div>
+        <div>github.com/vpetrova3/repoquest-first-pr-simulator</div>
+      </footer>
+    </div>
+  </body>
+</html>

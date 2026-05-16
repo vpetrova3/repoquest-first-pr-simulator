@@ -1,130 +1,159 @@
 # RepoQuest: First PR Simulator
 
-RepoQuest is an IBM Bob-powered developer onboarding tool that helps new developers go from an unfamiliar codebase to a meaningful first pull request.
+RepoQuest turns a GitHub repository into a guided first pull request journey for new developers. Paste any repo URL and get a repository overview, architecture map, five onboarding missions with mentor-style hints, a reviewer-ready first PR plan, and a readiness report.
 
-Instead of generating static documentation, RepoQuest turns a GitHub repository into a guided journey with architecture summaries, developer missions, mentor-style hints, test suggestions, contribution difficulty scoring, and a first-PR readiness report.
+Built for the **IBM Bob Hackathon (May 2026)** with a two-stage analysis pipeline:
 
-Built for the IBM Bob Hackathon.
+- **Heuristic pass** — instant repo analysis from file paths and tech-stack signals. Works with no API keys.
+- **watsonx pass** — live IBM watsonx Granite calls that upgrade the summary, missions, and first PR plan with real reasoning grounded in the actual repo.
+
+If watsonx is unconfigured or unavailable, RepoQuest stays useful via the heuristic layer.
 
 ## Demo
 
-Open the app locally:
+- **Deployed app:** _add your Vercel URL here after deploying_
+- **Public repo:** https://github.com/vpetrova3/repoquest-first-pr-simulator
+- **Bob session evidence:** [`bob_sessions/`](./bob_sessions/)
+- **Cover image / slides / video script:** [`submission/`](./submission/)
+
+## Run locally
 
 ```bash
 node scripts/serve.mjs
 ```
 
-Then visit:
+Open [http://localhost:4173](http://localhost:4173). No `npm install` needed — the frontend is dependency-free vanilla JS.
 
-```text
-http://localhost:4173
-```
-
-No package install is required. The prototype is dependency-free so it can run during the hackathon even if a machine does not have `npm`, `pnpm`, or `yarn`.
-
-## Private Repositories
-
-Public repositories work immediately with no token. RepoQuest tries public GitHub access first, so public repos do not depend on `GITHUB_TOKEN`.
-
-Private repositories require a GitHub token because the browser cannot read private GitHub data by itself.
-
-Use a fine-grained GitHub personal access token with read-only access to the private repository contents. Do not commit the token.
-
-Start the local server with:
+To enable the live watsonx layer locally, export the IBM Cloud env vars before starting:
 
 ```bash
-export GITHUB_TOKEN="paste_your_token_here"
+export WATSONX_API_KEY="..."
+export WATSONX_PROJECT_ID="..."
 node scripts/serve.mjs
 ```
 
-Then open `http://localhost:4173` and paste the private GitHub repository URL.
+The app shows the AI status badge: **"IBM watsonx · Granite 3.3 · live"** when configured, **"watsonx offline · heuristic mode"** otherwise.
 
-If a private repo still says it was not found, the token is usually missing access to that exact repository, expired, pasted incorrectly, or blocked by organization SSO settings.
+## Deploy to Vercel
 
-For deployment, set `GITHUB_TOKEN` as a private environment variable on the hosting platform. Never put the token in `app.js`, `index.html`, screenshots, commits, or `bob_sessions/`.
+1. Push the repo to GitHub (already public).
+2. Import on [vercel.com](https://vercel.com/new) — no build command, no output directory.
+3. Set environment variables in the Vercel project settings:
+   - `WATSONX_API_KEY` — IBM Cloud API key
+   - `WATSONX_PROJECT_ID` — watsonx.ai project ID
+   - `WATSONX_URL` (optional) — region URL, defaults to `https://us-south.ml.cloud.ibm.com`
+   - `WATSONX_MODEL_ID` (optional) — defaults to `ibm/granite-3-3-8b-instruct`
+   - `GITHUB_TOKEN` (optional) — fine-grained read-only PAT for private repo analysis
+4. Deploy. The serverless functions live at `/api/analyze`, `/api/llm`, `/api/llm/status`.
 
-## Deployment
+See [`.env.example`](./.env.example) for the full variable list.
 
-This is a static app. Fast options:
+## Architecture
 
-- GitHub Pages: deploy from the repository root.
-- Netlify: deploy the repository with publish directory set to `.`.
-- Vercel: import the repository as a static project with no build command.
+```
+Browser (vanilla JS, no build, no framework)
+      │
+      ├── Heuristic analysis: GitHub REST → file tree → rule-based tech stack + missions
+      │
+      └── /api/llm  →  IBM Cloud IAM (cached token)  →  watsonx.ai /ml/v1/text/generation
+                                                        │
+                                                        └── Granite 3.3 8B Instruct
+                                                            returns JSON for:
+                                                              - repository summary
+                                                              - 5 onboarding missions
+                                                              - first PR plan
+```
 
-## Core Flow
+**Files of interest:**
 
-1. User enters a public GitHub repository URL.
-2. RepoQuest fetches repository metadata and the file tree through the GitHub API.
-3. RepoQuest generates a first-pass overview, architecture map, mission path, and first PR plan.
-4. IBM Bob IDE validates and improves the repository analysis with full project context.
-5. The team exports Bob task reports into `bob_sessions/`.
-6. The user receives a readiness report and reviewer-ready first PR plan.
+- [`app.js`](app.js) — frontend: heuristic analysis, watsonx enhancement pipeline (`enhanceWithLlm`), prompt builders, UI rendering.
+- [`scripts/serve.mjs`](scripts/serve.mjs) — local Node dev server with `/api/analyze`, `/api/llm`, `/api/llm/status`.
+- [`api/`](api/) — Vercel serverless functions (production equivalents of the local routes).
+- [`api/_watsonx.js`](api/_watsonx.js) — IAM token exchange, watsonx config, JSON helpers.
 
-## IBM Bob Usage
+## Core flow
 
-IBM Bob is a core part of the project workflow:
+1. User pastes a GitHub repo URL.
+2. RepoQuest fetches the repo metadata and file tree (public via direct GitHub API, private via `/api/analyze` + `GITHUB_TOKEN`).
+3. Heuristic pass renders the overview, architecture, and template missions instantly.
+4. If watsonx is enabled, three parallel LLM calls upgrade the summary, missions, and first PR plan with Granite output. The AI badge animates from "enhancing…" to "live".
+5. User explores missions, reads the first PR plan, copies it to clipboard, and reviews the readiness report.
 
-- Bob analyzes repository structure, important files, and code flow.
-- Bob validates the architecture map.
-- Bob generates or refines onboarding missions.
-- Bob suggests tests and validation steps.
-- Bob prepares the first PR title, description, risk notes, and reviewer checklist.
-- Bob helps build, review, and polish the RepoQuest prototype.
+## IBM Bob in the development loop
 
-Export all relevant Bob task history markdown files and task session consumption screenshots into [`bob_sessions/`](./bob_sessions/) before submission.
+Bob was the development partner — not a feature. Every meaningful design decision was reviewed with Bob:
+
+- **Repository analysis** of the demo target (TodoMVC) — output seeded the mission template.
+- **Mission generation** — Bob produced the original five-mission structure now refined live by Granite.
+- **First PR plan** format — Bob designed the reviewer-checklist shape.
+- **watsonx integration review** — Bob audited the proxy code, IAM caching, and prompt wording in `app.js`.
+- **Demo script polish** — Bob helped tighten the spoken narration.
+
+Export task histories and consumption screenshots live in [`bob_sessions/`](./bob_sessions/). The [`docs/bob-runbook.md`](docs/bob-runbook.md) is the exact 24-hour playbook used during the hackathon.
+
+## What's new in v0.2
+
+- **Live watsonx Granite integration** (`/api/llm`) — replaces rule-based mission templates with real LLM output, grounded in actual repo paths.
+- **AI status badge** with three states: offline, enhancing, live.
+- **Heuristic-first architecture** — every code path degrades gracefully if watsonx is unconfigured or fails.
+- **Vercel serverless** deployment in `api/`, alongside the existing local `scripts/serve.mjs`.
+- **`.env.example`** documenting all environment variables.
+- **Cover image template** + slide deck + video script in `submission/`.
 
 ## Features
 
-- GitHub repo input
-- Live public repository tree analysis
-- Prepared demo fallback
-- Repository overview
-- Architecture map
-- Guided onboarding missions
-- Mentor-style hints
-- Suggested tests
-- Contribution difficulty radar
-- First PR recommendation
-- Readiness report
-- IBM Bob prompt pack
-- Submission docs and Bob export folder
+- Live public/private GitHub repo analysis (via `GITHUB_TOKEN` for private)
+- Two-stage analysis: heuristic floor + watsonx ceiling
+- Repository overview, architecture map, key files
+- Five onboarding missions with mentor hints, suggested tests, learning outcomes
+- First PR plan: title, files, implementation steps, test plan, reviewer checklist
+- Contribution difficulty radar (three ranked options)
+- Readiness report with concepts learned and next steps
+- IBM Bob prompt pack (copy-to-clipboard for offline Bob IDE use)
+- Demo fallback when GitHub API is unavailable
+- Mobile-responsive layout
 
-## Repository Structure
+## Repository structure
 
 ```text
 .
-|-- index.html
-|-- styles.css
-|-- app.js
-|-- scripts/
-|   `-- serve.mjs
-|-- sample_outputs/
-|   `-- repoquest-demo.json
-|-- bob_sessions/
-|   `-- README.md
-|-- docs/
-|   |-- bob-workflow.md
-|   |-- demo-script.md
-|   `-- submission-checklist.md
-|-- package.json
-|-- LICENSE
-`-- README.md
+├── index.html
+├── styles.css
+├── app.js
+├── scripts/
+│   └── serve.mjs              # local Node dev server with API routes
+├── api/                       # Vercel serverless functions (production)
+│   ├── _watsonx.js            # shared IAM + helpers
+│   ├── analyze.js             # GitHub repo analysis
+│   ├── llm.js                 # watsonx Granite proxy
+│   └── llm/status.js          # provider/model status
+├── bob_sessions/              # IBM Bob task exports + consumption screenshots
+├── submission/                # cover image template, slide deck, video script
+├── sample_outputs/
+├── docs/
+│   ├── bob-runbook.md         # 24-hour Bob execution playbook
+│   ├── bob-prompts.md
+│   ├── bob-team-quickstart.md
+│   ├── bob-workflow.md
+│   ├── demo-script.md
+│   ├── frontend-brief.md
+│   ├── submission-checklist.md
+│   └── team-brief.md
+├── .env.example
+├── package.json
+├── vercel.json
+├── CONTRIBUTING.md
+├── LICENSE
+└── README.md
 ```
-
-## Hackathon Submission
-
-See:
-
-- [`CONTRIBUTING.md`](./CONTRIBUTING.md)
-- [`docs/RepoQuest_Team_Brief.pdf`](./docs/RepoQuest_Team_Brief.pdf)
-- [`docs/team-brief.md`](./docs/team-brief.md)
-- [`docs/frontend-brief.md`](./docs/frontend-brief.md)
-- [`docs/bob-team-quickstart.md`](./docs/bob-team-quickstart.md)
-- [`docs/bob-workflow.md`](./docs/bob-workflow.md)
-- [`docs/bob-prompts.md`](./docs/bob-prompts.md)
-- [`docs/demo-script.md`](./docs/demo-script.md)
-- [`docs/submission-checklist.md`](./docs/submission-checklist.md)
 
 ## Security
 
-Do not commit IBM Cloud credentials, API keys, `.env` files, tokens, or screenshots that reveal secrets. Review `bob_sessions/` carefully before submitting the public repository.
+- Never commit `.env`, API keys, IBM Cloud credentials, or GitHub tokens.
+- The `.gitignore` excludes `.env` and `.env.*` (except `.env.example`).
+- `GITHUB_TOKEN` and `WATSONX_API_KEY` live server-side only (env vars in Vercel, or env exports for local dev).
+- Before pushing `bob_sessions/`, scan markdown exports and PNG screenshots for credentials. If a secret slipped into a Bob prompt, **rotate it immediately** — assume any keystroke into a chat product is logged.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).

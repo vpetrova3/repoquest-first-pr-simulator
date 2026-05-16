@@ -1,14 +1,17 @@
 {
   "name": "repoquest-first-pr-simulator",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "A dependency-free IBM Bob Hackathon prototype that turns a GitHub repo into a guided first PR journey.",
+  "type": "module",
+  "description": "A dependency-free IBM Bob Hackathon project that turns a GitHub repo into a guided first PR journey, powered live by IBM watsonx Granite.",
   "scripts": {
     "start": "node scripts/serve.mjs",
-    "check": "node --check app.js && node --check scripts/serve.mjs"
+    "check": "node --check app.js && node --check scripts/serve.mjs && node --check api/analyze.js && node --check api/llm.js && node --check api/llm/status.js && node --check api/_watsonx.js"
   },
   "keywords": [
     "ibm-bob",
+    "ibm-watsonx",
+    "granite",
     "hackathon",
     "developer-onboarding",
     "first-pr"

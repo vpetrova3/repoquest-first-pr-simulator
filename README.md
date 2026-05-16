@@ -119,6 +119,7 @@ See:
 - [`docs/RepoQuest_Team_Brief.pdf`](./docs/RepoQuest_Team_Brief.pdf)
 - [`docs/team-brief.md`](./docs/team-brief.md)
 - [`docs/frontend-brief.md`](./docs/frontend-brief.md)
+- [`docs/bob-team-quickstart.md`](./docs/bob-team-quickstart.md)
 - [`docs/bob-workflow.md`](./docs/bob-workflow.md)
 - [`docs/bob-prompts.md`](./docs/bob-prompts.md)
 - [`docs/demo-script.md`](./docs/demo-script.md)

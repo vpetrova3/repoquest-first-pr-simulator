@@ -1778,10 +1778,13 @@ function renderRadarChart(radar) {
     return;
   }
 
-  const size = 280;
+  const size = 240;
   const center = size / 2;
-  const radius = size * 0.36;
-  const items = radar.slice(0, 5);
+  const radius = size * 0.42;
+  const items = radar.slice(0, 5).map((item) => ({
+    label: item.label || "Mission task",
+    score: Math.max(0, Math.min(100, Number(item.score) || 0))
+  }));
   const count = items.length;
   const angleFor = (i) => (Math.PI * 2 * i) / count - Math.PI / 2;
 
@@ -1828,32 +1831,31 @@ function renderRadarChart(radar) {
     })
     .join("");
 
-  const labels = items
-    .map((item, i) => {
-      const a = angleFor(i);
-      const labelR = radius + 18;
-      const x = center + Math.cos(a) * labelR;
-      const y = center + Math.sin(a) * labelR;
-      const anchor = Math.cos(a) > 0.3 ? "start" : Math.cos(a) < -0.3 ? "end" : "middle";
-      const dy = Math.sin(a) > 0.3 ? 12 : Math.sin(a) < -0.3 ? -4 : 4;
-      const label = truncate(item.label, 22);
+  const legend = items
+    .map((item) => {
       return `
-        <g>
-          <text class="radar-label" x="${x.toFixed(2)}" y="${(y + dy).toFixed(2)}" text-anchor="${anchor}">${escapeHtml(label)}</text>
-          <text class="radar-value" x="${x.toFixed(2)}" y="${(y + dy + 14).toFixed(2)}" text-anchor="${anchor}">${item.score}%</text>
-        </g>
+        <div class="radar-legend-item">
+          <span class="radar-legend-dot" aria-hidden="true"></span>
+          <span class="radar-legend-label">${escapeHtml(item.label)}</span>
+          <span class="radar-legend-value">${item.score}%</span>
+        </div>
       `;
     })
     .join("");
+  const ariaLabel = items.map((item) => `${item.label}: ${item.score}%`).join(", ");
 
   selectors.difficultyRadar.innerHTML = `
-    <svg viewBox="0 0 ${size} ${size}" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Contribution difficulty radar">
-      ${rings}
-      ${axes}
-      <polygon class="radar-shape" points="${shapePoints}" />
-      ${dots}
-      ${labels}
-    </svg>
+    <div class="radar-chart-frame">
+      <svg viewBox="0 0 ${size} ${size}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Contribution difficulty radar: ${escapeHtml(ariaLabel)}">
+        ${rings}
+        ${axes}
+        <polygon class="radar-shape" points="${shapePoints}" />
+        ${dots}
+      </svg>
+    </div>
+    <div class="radar-legend" aria-hidden="true">
+      ${legend}
+    </div>
   `;
 }
 

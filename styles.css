@@ -1,4 +1,5 @@
-:root {
+:root,
+:root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #0a0f12;
   --bg-elevated: #11181d;
@@ -13,20 +14,89 @@
   --muted-strong: rgba(243, 246, 244, 0.72);
   --teal: #2dbfa8;
   --teal-deep: #1a8a78;
-  --teal-glow: rgba(45, 191, 168, 0.32);
+  --teal-glow: color-mix(in srgb, var(--teal) 32%, transparent);
   --blue: #6a8fd9;
-  --blue-glow: rgba(106, 143, 217, 0.28);
+  --blue-glow: color-mix(in srgb, var(--blue) 28%, transparent);
   --ink: #243145;
   --amber: #f0b35f;
-  --amber-glow: rgba(240, 179, 95, 0.24);
+  --amber-glow: color-mix(in srgb, var(--amber) 24%, transparent);
   --red: #ef6b6b;
-  --red-glow: rgba(239, 107, 107, 0.24);
+  --red-glow: color-mix(in srgb, var(--red) 24%, transparent);
   --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
   --radius-lg: 18px;
   --radius-md: 12px;
   --radius-sm: 8px;
   --transition: 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --body-gradient:
+    radial-gradient(60% 50% at 15% 18%, color-mix(in srgb, var(--teal) 10%, transparent) 0%, transparent 60%),
+    radial-gradient(55% 50% at 88% 78%, rgba(106, 143, 217, 0.10) 0%, transparent 60%),
+    radial-gradient(45% 40% at 50% 6%, color-mix(in srgb, var(--teal) 6%, transparent) 0%, transparent 65%),
+    linear-gradient(180deg, #0a0f12 0%, #0d141a 50%, #0a0f12 100%);
+  --body-grid: rgba(255, 255, 255, 0.018);
+  --topbar-bg: rgba(10, 15, 18, 0.72);
+  --input-bg: rgba(0, 0, 0, 0.25);
+  --mission-card-grad: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.025) 100%);
+  --mission-card-grad-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.035) 100%);
+  --code-bg: rgba(0, 0, 0, 0.4);
+  --code-bg-soft: rgba(0, 0, 0, 0.22);
+  --pill-bg: rgba(0, 0, 0, 0.25);
+  --pill-soft-bg: rgba(255, 255, 255, 0.06);
+  --kbd-bg: rgba(255, 255, 255, 0.06);
+  --tag-bg: rgba(255, 255, 255, 0.06);
+  --segment-bg: rgba(0, 0, 0, 0.2);
+  --ring-track: rgba(255, 255, 255, 0.06);
+  --teal-light: var(--teal-light);
+  --hljs-theme-href: "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css";
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f7f4;
+  --bg-elevated: #ffffff;
+  --surface: rgba(255, 255, 255, 0.85);
+  --surface-strong: rgba(255, 255, 255, 0.95);
+  --surface-hover: rgba(255, 255, 255, 1);
+  --line: rgba(13, 20, 24, 0.10);
+  --line-strong: rgba(13, 20, 24, 0.18);
+  --text: #0d1418;
+  --text-soft: rgba(13, 20, 24, 0.86);
+  --muted: rgba(13, 20, 24, 0.55);
+  --muted-strong: rgba(13, 20, 24, 0.72);
+  --teal: #137d6d;
+  --teal-deep: #0c5f54;
+  --teal-glow: rgba(19, 125, 109, 0.28);
+  --blue: #395f9f;
+  --blue-glow: rgba(57, 95, 159, 0.22);
+  --ink: #243145;
+  --amber: #c47a23;
+  --amber-glow: rgba(196, 122, 35, 0.24);
+  --red: #af3d3d;
+  --red-glow: rgba(175, 61, 61, 0.22);
+  --shadow-lg: 0 18px 50px rgba(20, 32, 28, 0.12), 0 2px 6px rgba(20, 32, 28, 0.06);
+  --shadow-md: 0 8px 22px rgba(20, 32, 28, 0.08);
+
+  --body-gradient:
+    radial-gradient(60% 50% at 15% 18%, rgba(19, 125, 109, 0.12) 0%, transparent 60%),
+    radial-gradient(55% 50% at 88% 78%, rgba(57, 95, 159, 0.10) 0%, transparent 60%),
+    radial-gradient(45% 40% at 50% 6%, rgba(19, 125, 109, 0.06) 0%, transparent 65%),
+    linear-gradient(180deg, #f7f8f5 0%, #eef2ee 50%, #f6f7f4 100%);
+  --body-grid: rgba(13, 20, 24, 0.035);
+  --topbar-bg: rgba(246, 247, 244, 0.78);
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --mission-card-grad: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 100%);
+  --mission-card-grad-hover: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 100%);
+  --code-bg: #f0f3ef;
+  --code-bg-soft: rgba(13, 20, 24, 0.04);
+  --pill-bg: rgba(255, 255, 255, 0.9);
+  --pill-soft-bg: rgba(13, 20, 24, 0.04);
+  --kbd-bg: rgba(13, 20, 24, 0.04);
+  --tag-bg: rgba(13, 20, 24, 0.05);
+  --segment-bg: rgba(13, 20, 24, 0.05);
+  --ring-track: rgba(13, 20, 24, 0.08);
+  --teal-light: #2dbfa8;
+  --hljs-theme-href: "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github.min.css";
 }
 
 * { box-sizing: border-box; }
@@ -41,12 +111,9 @@ body {
   font-feature-settings: "cv11", "ss01", "ss03";
   color: var(--text);
   background: var(--bg);
-  background-image:
-    radial-gradient(60% 50% at 15% 18%, rgba(45, 191, 168, 0.10) 0%, transparent 60%),
-    radial-gradient(55% 50% at 88% 78%, rgba(106, 143, 217, 0.10) 0%, transparent 60%),
-    radial-gradient(45% 40% at 50% 6%, rgba(45, 191, 168, 0.06) 0%, transparent 65%),
-    linear-gradient(180deg, #0a0f12 0%, #0d141a 50%, #0a0f12 100%);
+  background-image: var(--body-gradient);
   background-attachment: fixed;
+  transition: background-color 320ms ease, color 320ms ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -57,8 +124,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    linear-gradient(var(--body-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--body-grid) 1px, transparent 1px);
   background-size: 64px 64px;
   mask-image: radial-gradient(circle at 50% 30%, black 30%, transparent 75%);
   z-index: 0;
@@ -95,7 +162,7 @@ code, pre, .mono {
   gap: 24px;
   min-height: 76px;
   padding: 14px clamp(16px, 4vw, 44px);
-  background: rgba(10, 15, 18, 0.72);
+  background: var(--topbar-bg);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
@@ -196,8 +263,8 @@ code, pre, .mono {
 
 .ai-pill {
   position: relative;
-  background: linear-gradient(135deg, rgba(45, 191, 168, 0.12) 0%, rgba(106, 143, 217, 0.12) 100%);
-  border-color: rgba(45, 191, 168, 0.32);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--teal) 12%, transparent) 0%, color-mix(in srgb, var(--blue) 12%, transparent) 100%);
+  border-color: color-mix(in srgb, var(--teal) 32%, transparent);
   color: var(--text);
   font-weight: 700;
 }
@@ -209,12 +276,12 @@ code, pre, .mono {
   height: 8px;
   border-radius: 50%;
   background: var(--blue);
-  box-shadow: 0 0 0 0 rgba(106, 143, 217, 0.4);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--blue) 40%, transparent);
 }
 
 .ai-pill.ready {
-  border-color: rgba(45, 191, 168, 0.55);
-  background: linear-gradient(135deg, rgba(45, 191, 168, 0.18) 0%, rgba(45, 191, 168, 0.06) 100%);
+  border-color: color-mix(in srgb, var(--teal) 55%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--teal) 18%, transparent) 0%, color-mix(in srgb, var(--teal) 6%, transparent) 100%);
 }
 
 .ai-pill.ready .ai-dot {
@@ -224,8 +291,8 @@ code, pre, .mono {
 }
 
 .ai-pill.thinking {
-  border-color: rgba(240, 179, 95, 0.55);
-  background: linear-gradient(135deg, rgba(240, 179, 95, 0.16) 0%, rgba(240, 179, 95, 0.04) 100%);
+  border-color: color-mix(in srgb, var(--amber) 55%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--amber) 16%, transparent) 0%, rgba(240, 179, 95, 0.04) 100%);
 }
 
 .ai-pill.thinking .ai-dot {
@@ -248,13 +315,13 @@ code, pre, .mono {
 .ai-pill.hidden { display: none; }
 
 @keyframes pulse-teal {
-  0% { box-shadow: 0 0 0 0 rgba(45, 191, 168, 0.55); }
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--teal) 55%, transparent); }
   70% { box-shadow: 0 0 0 9px rgba(45, 191, 168, 0); }
   100% { box-shadow: 0 0 0 0 rgba(45, 191, 168, 0); }
 }
 
 @keyframes pulse-amber {
-  0% { box-shadow: 0 0 0 0 rgba(240, 179, 95, 0.6); }
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 60%, transparent); }
   60% { box-shadow: 0 0 0 8px rgba(240, 179, 95, 0); }
   100% { box-shadow: 0 0 0 0 rgba(240, 179, 95, 0); }
 }
@@ -312,7 +379,7 @@ h1 {
 }
 
 h1 .accent {
-  background: linear-gradient(135deg, var(--teal) 0%, #5eddc3 100%);
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -365,14 +432,14 @@ input, textarea, select {
   padding: 0 14px;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--input-bg);
   color: var(--text);
   transition: var(--transition);
 }
 
 input::placeholder { color: var(--muted); }
 
-input:hover, textarea:hover, select:hover { border-color: rgba(255, 255, 255, 0.22); }
+input:hover, textarea:hover, select:hover { border-color: var(--line-strong); filter: brightness(1.05); }
 
 input:focus, textarea:focus, button:focus-visible {
   outline: none;
@@ -509,7 +576,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   width: 26px;
   height: 24px;
   border-radius: 6px;
-  background: rgba(45, 191, 168, 0.12);
+  background: color-mix(in srgb, var(--teal) 12%, transparent);
   color: var(--teal);
   font-size: 0.7rem;
   font-weight: 800;
@@ -554,7 +621,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   inset: -1px;
   border-radius: var(--radius-lg);
   padding: 1px;
-  background: linear-gradient(135deg, rgba(45, 191, 168, 0.45), transparent 45%, rgba(106, 143, 217, 0.35));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--teal) 45%, transparent), transparent 45%, rgba(106, 143, 217, 0.35));
   -webkit-mask: linear-gradient(#fff, #fff) content-box, linear-gradient(#fff, #fff);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -569,7 +636,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   right: -120px;
   width: 320px;
   height: 320px;
-  background: radial-gradient(circle, rgba(45, 191, 168, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--teal) 18%, transparent) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -626,7 +693,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   height: 8px;
   border-radius: 999px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--pill-bg);
   border: 1px solid var(--line);
 }
 
@@ -673,7 +740,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--pill-bg);
   border: 1px solid var(--line);
   border-radius: 999px;
   font-weight: 600;
@@ -700,7 +767,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 
 .score-ring-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.06);
+  stroke: var(--ring-track);
   stroke-width: 8;
 }
 
@@ -725,7 +792,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   font-weight: 900;
   line-height: 1;
   letter-spacing: -2px;
-  background: linear-gradient(135deg, var(--teal) 0%, #5eddc3 100%);
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -823,7 +890,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 }
 
 .arch-svg-wrap .arch-edge {
-  stroke: rgba(45, 191, 168, 0.45);
+  stroke: color-mix(in srgb, var(--teal) 45%, transparent);
   stroke-width: 1.4;
   fill: none;
   stroke-dasharray: 4 4;
@@ -839,7 +906,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   padding: 4px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--segment-bg);
 }
 
 .segment {
@@ -867,7 +934,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   gap: 8px;
   margin-bottom: 20px;
   padding: 16px 18px;
-  background: rgba(0, 0, 0, 0.22);
+  background: var(--code-bg-soft);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
 }
@@ -899,7 +966,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 
 .mission-progress-bar {
   height: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--ring-track);
   border-radius: 999px;
   overflow: hidden;
   position: relative;
@@ -908,7 +975,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 .mission-progress-bar > span {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--teal) 0%, #5eddc3 100%);
+  background: linear-gradient(90deg, var(--teal) 0%, var(--teal-light) 100%);
   border-radius: 999px;
   transition: width 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
   box-shadow: 0 0 14px var(--teal-glow);
@@ -948,7 +1015,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   padding: 18px 20px;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.025) 100%);
+  background: var(--mission-card-grad);
   text-align: left;
   transition: var(--transition);
   position: relative;
@@ -968,14 +1035,14 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 }
 
 .mission-card:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.035) 100%);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: var(--mission-card-grad-hover);
+  border-color: var(--line-strong);
   transform: translateX(2px);
 }
 
 .mission-card.active {
-  background: linear-gradient(180deg, rgba(45, 191, 168, 0.14) 0%, rgba(45, 191, 168, 0.04) 100%);
-  border-color: rgba(45, 191, 168, 0.5);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--teal) 14%, transparent) 0%, rgba(45, 191, 168, 0.04) 100%);
+  border-color: color-mix(in srgb, var(--teal) 50%, transparent);
 }
 
 .mission-card.active::before { background: var(--teal); box-shadow: 0 0 12px var(--teal-glow); }
@@ -1012,9 +1079,10 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   height: 20px;
   border-radius: 50%;
   border: 1.5px solid var(--line-strong);
-  background: transparent;
+  background: var(--surface);
   transition: var(--transition);
   margin-left: auto;
+  cursor: pointer;
 }
 
 .mission-check svg { width: 12px; height: 12px; color: transparent; }
@@ -1032,7 +1100,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   min-height: 24px;
   padding: 2px 9px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--tag-bg);
   color: var(--muted-strong);
   font-size: 0.74rem;
   font-weight: 700;
@@ -1040,17 +1108,17 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 }
 
 .tag.beginner {
-  background: rgba(45, 191, 168, 0.16);
+  background: color-mix(in srgb, var(--teal) 16%, transparent);
   color: var(--teal);
 }
 
 .tag.medium {
-  background: rgba(240, 179, 95, 0.14);
+  background: color-mix(in srgb, var(--amber) 14%, transparent);
   color: var(--amber);
 }
 
 .tag.hard {
-  background: rgba(239, 107, 107, 0.14);
+  background: color-mix(in srgb, var(--red) 14%, transparent);
   color: var(--red);
 }
 
@@ -1093,14 +1161,14 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 .hint-item {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.18);
+  background: var(--code-bg-soft);
   overflow: hidden;
   transition: var(--transition);
 }
 
 .hint-item.revealed {
-  border-color: rgba(45, 191, 168, 0.35);
-  background: rgba(45, 191, 168, 0.06);
+  border-color: color-mix(in srgb, var(--teal) 35%, transparent);
+  background: color-mix(in srgb, var(--teal) 6%, transparent);
 }
 
 .hint-toggle {
@@ -1123,7 +1191,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: rgba(45, 191, 168, 0.16);
+  background: color-mix(in srgb, var(--teal) 16%, transparent);
   color: var(--teal);
   font-size: 0.72rem;
   font-weight: 800;
@@ -1169,7 +1237,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   font-family: "JetBrains Mono", ui-monospace, monospace;
   font-size: 0.78rem;
   padding: 5px 10px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--tag-bg);
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--text-soft);
@@ -1203,7 +1271,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   display: grid;
   gap: 14px;
   position: relative;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--code-bg-soft);
 }
 
 .pr-preview-head {
@@ -1222,7 +1290,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   gap: 6px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(45, 191, 168, 0.16);
+  background: color-mix(in srgb, var(--teal) 16%, transparent);
   color: var(--teal);
   font-weight: 800;
   font-size: 0.74rem;
@@ -1263,7 +1331,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--code-bg);
   border: 1px solid var(--line);
   border-radius: 8px;
   font-family: "JetBrains Mono", ui-monospace, monospace;
@@ -1301,7 +1369,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 
 .radar-axis { stroke: var(--line); fill: none; stroke-width: 1; }
 .radar-axis-line { stroke: var(--line); stroke-width: 1; }
-.radar-shape { fill: rgba(45, 191, 168, 0.18); stroke: var(--teal); stroke-width: 2; filter: drop-shadow(0 0 10px var(--teal-glow)); }
+.radar-shape { fill: color-mix(in srgb, var(--teal) 18%, transparent); stroke: var(--teal); stroke-width: 2; filter: drop-shadow(0 0 10px var(--teal-glow)); }
 .radar-dot { fill: var(--teal); stroke: #062a25; stroke-width: 2; }
 .radar-label {
   font-family: "Inter", system-ui, sans-serif;
@@ -1336,7 +1404,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   display: inline-block;
   padding: 2px 6px;
   margin: 0 2px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--kbd-bg);
   border: 1px solid var(--line-strong);
   border-bottom-width: 2px;
   border-radius: 5px;
@@ -1357,7 +1425,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   font-size: 1.7rem;
   font-weight: 900;
   letter-spacing: -1px;
-  background: linear-gradient(135deg, var(--teal) 0%, #5eddc3 100%);
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -1373,7 +1441,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 
 .time-estimate-bar {
   height: 6px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--ring-track);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -1406,7 +1474,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   padding: 9px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.22);
+  background: var(--code-bg-soft);
   color: var(--text-soft);
   font-size: 0.84rem;
   font-family: "JetBrains Mono", ui-monospace, monospace;
@@ -1415,8 +1483,8 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 }
 
 .recent-item:hover {
-  background: rgba(45, 191, 168, 0.08);
-  border-color: rgba(45, 191, 168, 0.32);
+  background: color-mix(in srgb, var(--teal) 8%, transparent);
+  border-color: color-mix(in srgb, var(--teal) 32%, transparent);
   color: var(--teal);
 }
 
@@ -1436,7 +1504,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--pill-soft-bg);
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--muted-strong);
@@ -1448,7 +1516,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 
 .try-chip:hover {
   background: rgba(45, 191, 168, 0.1);
-  border-color: rgba(45, 191, 168, 0.32);
+  border-color: color-mix(in srgb, var(--teal) 32%, transparent);
   color: var(--teal);
 }
 
@@ -1511,7 +1579,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--code-bg);
 }
 
 .file-code-block {
@@ -1545,14 +1613,14 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 }
 
 .file-list li:hover {
-  background: rgba(45, 191, 168, 0.06);
+  background: color-mix(in srgb, var(--teal) 8%, transparent);
   color: var(--teal);
   padding-left: 40px;
 }
 
 .files-pill { cursor: pointer; }
 .files-pill:hover {
-  background: rgba(45, 191, 168, 0.16);
+  background: color-mix(in srgb, var(--teal) 16%, transparent);
   border-color: rgba(45, 191, 168, 0.4);
   color: var(--teal);
 }
@@ -1584,7 +1652,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 
 @keyframes enhance-glow {
   0% { box-shadow: 0 0 0 0 transparent; }
-  30% { box-shadow: 0 0 0 4px var(--teal-glow), 0 0 28px var(--teal-glow); border-color: rgba(45, 191, 168, 0.6); }
+  30% { box-shadow: 0 0 0 4px var(--teal-glow), 0 0 28px var(--teal-glow); border-color: color-mix(in srgb, var(--teal) 60%, transparent); }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
 

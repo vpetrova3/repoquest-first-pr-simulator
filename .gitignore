@@ -1,5 +1,6 @@
 # Logs
 .DS_Store
+.claude/
 logs
 *.log
 npm-debug.log*

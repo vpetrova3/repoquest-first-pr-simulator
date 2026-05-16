@@ -3,13 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a0f12" />
     <meta
       name="description"
-      content="RepoQuest turns a GitHub repository into a guided first pull request journey."
+      content="RepoQuest turns any GitHub repository into a guided first pull request journey, powered live by IBM watsonx Granite."
     />
-    <title>RepoQuest: First PR Simulator</title>
+    <title>RepoQuest · First PR Simulator</title>
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css" />
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script defer src="./app.js"></script>
   </head>
   <body>
@@ -24,6 +33,7 @@
         </a>
         <nav class="topnav" aria-label="Workspace sections">
           <a href="#overview">Overview</a>
+          <a href="#architecture">Architecture</a>
           <a href="#missions">Missions</a>
           <a href="#pr-plan">PR Plan</a>
           <a href="#readiness">Report</a>
@@ -56,6 +66,7 @@
                   value="https://github.com/tastejs/todomvc"
                   placeholder="https://github.com/owner/repo"
                   autocomplete="off"
+                  spellcheck="false"
                   required
                 />
                 <button class="icon-button primary" type="submit" aria-label="Analyze repository">
@@ -64,6 +75,7 @@
                 </button>
               </div>
             </form>
+            <div class="try-chips" id="tryChips" aria-label="Suggested repositories"></div>
             <div class="button-row">
               <button class="ghost-button" type="button" id="demoButton">
                 <i data-lucide="sparkles" aria-hidden="true"></i>
@@ -91,30 +103,57 @@
             </div>
             <div class="asset-grid">
               <span>Public repo</span>
-              <strong>Ready</strong>
+              <strong class="status-ready">Ready</strong>
               <span>Demo URL</span>
-              <strong>Needed</strong>
+              <strong class="status-needed">Needed</strong>
               <span>Bob exports</span>
-              <strong>Needed</strong>
+              <strong class="status-needed">Needed</strong>
               <span>Video</span>
-              <strong>Needed</strong>
+              <strong class="status-needed">Needed</strong>
             </div>
           </section>
         </aside>
 
         <section class="main-stage" aria-live="polite">
           <section class="repo-brief" id="overview">
-            <div>
+            <div class="repo-brief-content">
               <div class="section-kicker">Repository Overview</div>
-              <h2 id="repoName">TodoMVC</h2>
+              <h1 class="hero-title">
+                From <span class="hero-accent">confusion</span><br />
+                to <span class="hero-name" id="repoName">TodoMVC</span>.
+              </h1>
               <p id="repoSummary">
-                A prepared RepoQuest demo is loaded. Replace it with a public GitHub repository URL when
-                your team is ready to test live analysis.
+                A prepared RepoQuest demo is loaded. Paste a public GitHub repository URL to run a live analysis through the watsonx-powered pipeline.
               </p>
+              <div class="repo-stats" id="repoStats" aria-label="Repository stats"></div>
+              <div class="lang-breakdown" id="langBreakdown" aria-label="Language breakdown"></div>
+              <div class="hero-actions">
+                <a class="ghost-button" id="viewOnGithub" href="#" target="_blank" rel="noreferrer">
+                  <i data-lucide="external-link" aria-hidden="true"></i>
+                  <span>View on GitHub</span>
+                </a>
+                <button class="ghost-button" type="button" id="copyShareButton">
+                  <i data-lucide="share-2" aria-hidden="true"></i>
+                  <span>Copy share link</span>
+                </button>
+              </div>
             </div>
-            <div class="score-tile" aria-label="First PR readiness score">
-              <span id="readinessScore">86</span>
-              <small>readiness</small>
+            <div class="score-ring" aria-label="First PR readiness score">
+              <svg viewBox="0 0 120 120" class="score-ring-svg">
+                <defs>
+                  <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#2dbfa8" />
+                    <stop offset="100%" stop-color="#6a8fd9" />
+                  </linearGradient>
+                </defs>
+                <circle class="score-ring-bg" cx="60" cy="60" r="52" />
+                <circle class="score-ring-fg" id="scoreRingFg" cx="60" cy="60" r="52"
+                  stroke-dasharray="326.7" stroke-dashoffset="326.7" />
+              </svg>
+              <div class="score-ring-text">
+                <span id="readinessScore">86</span>
+                <small>readiness</small>
+              </div>
             </div>
           </section>
 
@@ -137,7 +176,7 @@
             </article>
           </section>
 
-          <section class="map-and-files">
+          <section class="map-and-files" id="architecture">
             <article class="architecture-panel" aria-labelledby="architectureTitle">
               <div class="section-header">
                 <div>
@@ -146,7 +185,7 @@
                 </div>
                 <i data-lucide="git-branch" aria-hidden="true"></i>
               </div>
-              <div class="arch-map" id="architectureMap"></div>
+              <div class="arch-svg-wrap" id="architectureMap"></div>
             </article>
 
             <article class="files-panel" aria-labelledby="filesTitle">
@@ -173,6 +212,15 @@
                 <button class="segment" type="button" data-filter="Medium">Medium</button>
               </div>
             </div>
+            <div class="mission-progress" id="missionProgress">
+              <div class="mission-progress-meta">
+                <span class="mission-progress-label">Onboarding progress</span>
+                <span class="mission-progress-count"><strong id="missionProgressDone">0</strong> of <strong id="missionProgressTotal">5</strong> complete</span>
+              </div>
+              <div class="mission-progress-bar">
+                <span id="missionProgressFill" style="width: 0%"></span>
+              </div>
+            </div>
             <div class="mission-layout">
               <div class="mission-list" id="missionList"></div>
               <article class="mission-detail" id="missionDetail" aria-label="Selected mission"></article>
@@ -191,6 +239,21 @@
               </button>
             </div>
             <div class="pr-grid">
+              <article class="pr-preview" aria-label="Mock GitHub PR preview">
+                <div class="pr-preview-head">
+                  <span class="pr-preview-status">
+                    <span class="dot"></span>
+                    Draft
+                  </span>
+                  <span id="prRepoLabel" class="mono">owner/repo</span>
+                </div>
+                <h3 id="prPreviewTitle">Loading…</h3>
+                <div class="pr-preview-meta">
+                  <span id="prRiskBadge"><i data-lucide="shield" style="width:12px;vertical-align:-1px"></i> risk: low</span>
+                  <span id="prBranchBadge"><i data-lucide="git-branch" style="width:12px;vertical-align:-1px"></i> first-pr/onboarding</span>
+                </div>
+                <div class="pr-preview-files" id="prPreviewFiles"></div>
+              </article>
               <article class="pr-plan-card">
                 <h3>Implementation Steps</h3>
                 <ol id="implementationSteps"></ol>
@@ -221,7 +284,7 @@
               </div>
               <div class="report-panel">
                 <h3>Difficulty Radar</h3>
-                <div class="radar-list" id="difficultyRadar"></div>
+                <div class="radar-svg-wrap" id="difficultyRadar"></div>
               </div>
               <div class="report-panel">
                 <h3>Next Steps</h3>
@@ -231,6 +294,14 @@
           </section>
         </section>
       </main>
+
+      <footer class="footer-built">
+        <span>Designed with <strong>IBM Bob</strong></span>
+        <span class="footer-sep" aria-hidden="true"></span>
+        <span>Powered live by <strong>watsonx Granite</strong></span>
+        <span class="footer-sep" aria-hidden="true"></span>
+        <span>IBM Bob Hackathon · May 2026</span>
+      </footer>
     </div>
 
     <dialog id="promptDialog" class="prompt-dialog">
@@ -247,6 +318,32 @@
             <i data-lucide="copy" aria-hidden="true"></i>
             <span>Copy Prompt</span>
           </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="fileDialog" class="file-dialog">
+      <form method="dialog">
+        <div class="dialog-header">
+          <div class="file-dialog-title">
+            <i data-lucide="file-code-2" aria-hidden="true"></i>
+            <span id="fileDialogPath" class="mono">file path</span>
+          </div>
+          <div class="dialog-header-actions">
+            <a id="fileDialogOpenLink" class="ghost-button" target="_blank" rel="noreferrer" href="#">
+              <i data-lucide="external-link" aria-hidden="true"></i>
+              <span>Open on GitHub</span>
+            </a>
+            <button class="icon-only" type="submit" aria-label="Close file preview">
+              <i data-lucide="x" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <div class="file-dialog-body">
+          <pre class="file-code-block"><code id="fileDialogCode" class="hljs">Loading…</code></pre>
+        </div>
+        <div class="file-dialog-footer">
+          <span id="fileDialogMeta" class="mono"></span>
         </div>
       </form>
     </dialog>

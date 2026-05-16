@@ -26,6 +26,14 @@ const demoAnalysis = {
       "tests/smoke-tests.js",
       "site-assets/todomvc-common/base.css",
     ],
+    stats: {
+      stars: 28000,
+      forks: 14400,
+      openIssues: 142,
+      language: "JavaScript",
+      updatedAt: "2024-02-12T15:22:33Z",
+      defaultBranch: "master",
+    },
   },
   architecture: [
     { label: "Entry Points", items: ["README", "examples/*", "package scripts"] },
@@ -160,6 +168,7 @@ const selectors = {
   repoStatus: document.querySelector("#repoStatus"),
   repoName: document.querySelector("#repoName"),
   repoSummary: document.querySelector("#repoSummary"),
+  repoStats: document.querySelector("#repoStats"),
   readinessScore: document.querySelector("#readinessScore"),
   techStack: document.querySelector("#techStack"),
   keyFileCount: document.querySelector("#keyFileCount"),
@@ -172,6 +181,11 @@ const selectors = {
   missionDetail: document.querySelector("#missionDetail"),
   segments: document.querySelectorAll(".segment"),
   prTitle: document.querySelector("#prTitle"),
+  prPreviewTitle: document.querySelector("#prPreviewTitle"),
+  prRepoLabel: document.querySelector("#prRepoLabel"),
+  prRiskBadge: document.querySelector("#prRiskBadge"),
+  prBranchBadge: document.querySelector("#prBranchBadge"),
+  prPreviewFiles: document.querySelector("#prPreviewFiles"),
   implementationSteps: document.querySelector("#implementationSteps"),
   testPlan: document.querySelector("#testPlan"),
   reviewerChecklist: document.querySelector("#reviewerChecklist"),
@@ -180,13 +194,88 @@ const selectors = {
   nextSteps: document.querySelector("#nextSteps"),
   aiBadge: document.querySelector("#aiBadge"),
   aiBadgeLabel: document.querySelector("#aiBadgeLabel"),
+  tryChips: document.querySelector("#tryChips"),
+  architecturePanel: document.querySelector(".architecture-panel"),
+  missionsSection: document.querySelector(".missions-section"),
+  prSection: document.querySelector(".pr-section"),
+  repoBrief: document.querySelector(".repo-brief"),
+  scoreRingFg: document.querySelector("#scoreRingFg"),
+  missionProgressDone: document.querySelector("#missionProgressDone"),
+  missionProgressTotal: document.querySelector("#missionProgressTotal"),
+  missionProgressFill: document.querySelector("#missionProgressFill"),
+  missionProgressBar: document.querySelector(".mission-progress-bar"),
+  langBreakdown: document.querySelector("#langBreakdown"),
+  viewOnGithub: document.querySelector("#viewOnGithub"),
+  copyShareButton: document.querySelector("#copyShareButton"),
+  fileDialog: document.querySelector("#fileDialog"),
+  fileDialogPath: document.querySelector("#fileDialogPath"),
+  fileDialogCode: document.querySelector("#fileDialogCode"),
+  fileDialogMeta: document.querySelector("#fileDialogMeta"),
+  fileDialogOpenLink: document.querySelector("#fileDialogOpenLink"),
+  mainStage: document.querySelector(".main-stage"),
 };
+
+const RING_CIRCUMFERENCE = 2 * Math.PI * 52;
+let confettiFired = false;
+
+const tryRepos = [
+  { owner: "tj", repo: "commander.js", label: "tj/commander.js" },
+  { owner: "expressjs", repo: "express", label: "expressjs/express" },
+  { owner: "honojs", repo: "hono", label: "honojs/hono" },
+  { owner: "withastro", repo: "astro", label: "withastro/astro" },
+];
+
+const completedMissions = new Set();
 
 function initialize() {
   setAnalysis(demoAnalysis);
+  renderTryChips();
   bindEvents();
   refreshIcons();
   checkLlmStatus();
+  applyInitialStagger();
+  maybeLoadFromShareParam();
+}
+
+function maybeLoadFromShareParam() {
+  try {
+    const params = new URLSearchParams(location.search);
+    const repo = params.get("repo");
+    if (repo && parseGitHubUrl(repo)) {
+      selectors.repoUrl.value = repo;
+      analyzeRepository(repo);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function applyInitialStagger() {
+  const sections = document.querySelectorAll(".main-stage > section, .control-panel > section");
+  sections.forEach((section, i) => {
+    section.classList.add("fade-in");
+    section.style.animationDelay = `${Math.min(i * 60, 320)}ms`;
+  });
+}
+
+function renderTryChips() {
+  if (!selectors.tryChips) return;
+  selectors.tryChips.innerHTML = tryRepos
+    .map(
+      (item) => `
+        <button class="try-chip" type="button" data-url="https://github.com/${item.owner}/${item.repo}">
+          <i data-lucide="github" aria-hidden="true"></i>
+          ${escapeHtml(item.label)}
+        </button>
+      `,
+    )
+    .join("");
+  selectors.tryChips.querySelectorAll(".try-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      selectors.repoUrl.value = chip.dataset.url;
+      analyzeRepository(chip.dataset.url);
+    });
+  });
 }
 
 async function checkLlmStatus() {
@@ -265,6 +354,15 @@ function bindEvents() {
     setStatus("PR plan copied", "clipboard-check");
   });
 
+  if (selectors.copyShareButton) {
+    selectors.copyShareButton.addEventListener("click", async () => {
+      const repo = state.analysis?.repo;
+      const url = `${location.origin}${location.pathname}?repo=${encodeURIComponent(repo?.url || "")}`;
+      await copyText(url);
+      setStatus("Share link copied", "clipboard-check");
+    });
+  }
+
   selectors.segments.forEach((segment) => {
     segment.addEventListener("click", () => {
       selectors.segments.forEach((item) => item.classList.remove("active"));
@@ -284,6 +382,7 @@ async function analyzeRepository(url) {
   }
 
   setStatus("Analyzing repo", "loader-circle");
+  applySkeletonLoading();
 
   try {
     let baseAnalysis = null;
@@ -372,20 +471,24 @@ function applyLlmEnhancements(baseAnalysis, enhancements, runId) {
   const next = { ...baseAnalysis };
   next.repo = { ...baseAnalysis.repo };
   let touched = false;
+  const enhancedSections = [];
 
   if (enhancements.summary && typeof enhancements.summary === "string") {
     next.repo.summary = enhancements.summary;
     touched = true;
+    enhancedSections.push("repoBrief");
   }
 
   if (Array.isArray(enhancements.missions) && enhancements.missions.length) {
     next.missions = enhancements.missions.map((mission) => normalizeMission(mission));
     touched = true;
+    enhancedSections.push("missionsSection");
   }
 
   if (enhancements.firstPr && typeof enhancements.firstPr === "object") {
     next.firstPr = normalizeFirstPr(enhancements.firstPr, baseAnalysis.firstPr);
     touched = true;
+    enhancedSections.push("prSection");
   }
 
   if (touched) {
@@ -397,10 +500,35 @@ function applyLlmEnhancements(baseAnalysis, enhancements, runId) {
       "Demo video should show the moment the watsonx badge flips from 'enhancing' to 'live'.",
     ];
     setAnalysis(next);
+    flashEnhancedSections(enhancedSections);
   }
 
   setStatus("Analysis ready · AI live", "badge-check");
   updateAiBadge("ready");
+}
+
+function flashEnhancedSections(keys) {
+  keys.forEach((key, i) => {
+    const el = selectors[key];
+    if (!el) return;
+    setTimeout(() => {
+      el.classList.remove("section-enhanced");
+      void el.offsetWidth;
+      el.classList.add("section-enhanced");
+      setTimeout(() => el.classList.remove("section-enhanced"), 1500);
+    }, i * 220);
+  });
+}
+
+function applySkeletonLoading() {
+  [selectors.repoName, selectors.repoSummary, selectors.techStack, selectors.keyFileCount].forEach((el) => {
+    if (el) el.classList.add("skeleton");
+  });
+  setTimeout(() => {
+    [selectors.repoName, selectors.repoSummary, selectors.techStack, selectors.keyFileCount].forEach((el) => {
+      if (el) el.classList.remove("skeleton");
+    });
+  }, 1200);
 }
 
 function normalizeMission(mission) {
@@ -632,6 +760,14 @@ function buildHeuristicAnalysis(repo, paths, authenticated = false) {
         `${repo.full_name} contains ${paths.length} tracked files across ${folders.length || 1} top-level areas.`,
       techStack,
       importantFiles,
+      stats: {
+        stars: repo.stargazers_count,
+        forks: repo.forks_count,
+        openIssues: repo.open_issues_count,
+        language: repo.language || null,
+        updatedAt: repo.pushed_at || repo.updated_at || null,
+        defaultBranch: repo.default_branch || "main",
+      },
     },
     architecture: buildArchitecture(folders, importantFiles, techStack),
     missions,
@@ -873,7 +1009,13 @@ function calculateReadinessScore(importantFiles, techStack, missions) {
 function setAnalysis(analysis) {
   state.analysis = analysis;
   state.selectedMission = 0;
+  clearSkeletons();
+  completedMissions.clear();
   render();
+}
+
+function clearSkeletons() {
+  document.querySelectorAll(".skeleton").forEach((el) => el.classList.remove("skeleton"));
 }
 
 function render() {
@@ -889,34 +1031,340 @@ function render() {
 
 function renderOverview() {
   const { repo, firstPr, readiness } = state.analysis;
-  selectors.repoName.textContent = repo.fullName || repo.name;
+  selectors.repoName.textContent = repo.name || repo.fullName;
   selectors.repoSummary.textContent = repo.summary;
-  selectors.readinessScore.textContent = readiness.score;
   selectors.techStack.textContent = repo.techStack.join(", ");
   selectors.keyFileCount.textContent = repo.importantFiles.length;
   selectors.missionCount.textContent = `${state.analysis.missions.length} steps`;
   selectors.riskLevel.textContent = firstPr.risk;
+  if (selectors.viewOnGithub) {
+    selectors.viewOnGithub.href = repo.url || "#";
+  }
+  animateReadiness(readiness.score);
+  renderRepoStats(repo);
+  fetchLanguages(repo).catch(() => {});
 }
 
-function renderArchitecture() {
-  selectors.architectureMap.innerHTML = state.analysis.architecture
+function animateReadiness(target) {
+  const target0 = Math.max(0, Math.min(100, Number(target) || 0));
+  if (selectors.scoreRingFg) {
+    const offset = RING_CIRCUMFERENCE * (1 - target0 / 100);
+    selectors.scoreRingFg.setAttribute("stroke-dashoffset", String(offset));
+  }
+  if (!selectors.readinessScore) return;
+  const startValue = Number(selectors.readinessScore.textContent) || 0;
+  const start = performance.now();
+  const duration = 1100;
+  function step(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const value = Math.round(startValue + (target0 - startValue) * eased);
+    selectors.readinessScore.textContent = value;
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+async function fetchLanguages(repo) {
+  if (!selectors.langBreakdown || !repo.fullName) return;
+  try {
+    const response = await fetch(`https://api.github.com/repos/${repo.fullName}/languages`);
+    if (!response.ok) {
+      selectors.langBreakdown.classList.add("hidden");
+      return;
+    }
+    const data = await response.json();
+    renderLangBreakdown(data);
+  } catch {
+    selectors.langBreakdown.classList.add("hidden");
+  }
+}
+
+const langColors = {
+  JavaScript: "#f1e05a",
+  TypeScript: "#3178c6",
+  Python: "#3572A5",
+  Go: "#00ADD8",
+  Rust: "#dea584",
+  Ruby: "#701516",
+  Java: "#b07219",
+  Kotlin: "#A97BFF",
+  Swift: "#F05138",
+  HTML: "#e34c26",
+  CSS: "#563d7c",
+  SCSS: "#c6538c",
+  Vue: "#41b883",
+  Svelte: "#ff3e00",
+  PHP: "#4F5D95",
+  Shell: "#89e051",
+  Dockerfile: "#384d54",
+  Makefile: "#427819",
+  JSON: "#cbcb41",
+  Markdown: "#083fa1",
+};
+
+function colorForLang(name) {
+  return langColors[name] || `hsl(${(name.length * 47) % 360} 60% 55%)`;
+}
+
+function renderLangBreakdown(data) {
+  if (!selectors.langBreakdown) return;
+  const entries = Object.entries(data || {});
+  if (!entries.length) {
+    selectors.langBreakdown.classList.add("hidden");
+    return;
+  }
+  const total = entries.reduce((acc, [, v]) => acc + v, 0) || 1;
+  const top = entries.sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const totalTop = top.reduce((acc, [, v]) => acc + v, 0);
+  const rest = total - totalTop;
+
+  const items = top.map(([name, bytes]) => ({
+    name,
+    pct: (bytes / total) * 100,
+    color: colorForLang(name),
+  }));
+  if (rest > 0 && total > 0) {
+    items.push({ name: "Other", pct: (rest / total) * 100, color: "#5c6862" });
+  }
+
+  selectors.langBreakdown.classList.remove("hidden");
+  selectors.langBreakdown.innerHTML = `
+    <div class="lang-breakdown-bar">
+      ${items.map((item) => `<span style="width: ${item.pct.toFixed(2)}%; background: ${item.color};"></span>`).join("")}
+    </div>
+    <div class="lang-breakdown-legend">
+      ${items
+        .slice(0, 5)
+        .map(
+          (item) => `
+            <span class="lang-legend-item">
+              <span class="lang-legend-dot" style="background: ${item.color};"></span>
+              <span class="lang-legend-name">${escapeHtml(item.name)}</span>
+              <span class="lang-legend-pct">${item.pct.toFixed(1)}%</span>
+            </span>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderRepoStats(repo) {
+  if (!selectors.repoStats) return;
+  const stats = repo.stats;
+  if (!stats) {
+    selectors.repoStats.innerHTML = "";
+    return;
+  }
+  const items = [];
+  if (typeof stats.stars === "number") items.push({ icon: "star", value: formatCount(stats.stars), label: "stars" });
+  if (typeof stats.forks === "number") items.push({ icon: "git-fork", value: formatCount(stats.forks), label: "forks" });
+  if (typeof stats.openIssues === "number") items.push({ icon: "circle-dot", value: formatCount(stats.openIssues), label: "open issues" });
+  if (stats.language) items.push({ icon: "code", value: stats.language, label: "" });
+  if (stats.updatedAt) items.push({ icon: "calendar", value: relativeTime(stats.updatedAt), label: "" });
+  selectors.repoStats.innerHTML = items
     .map(
-      (row) => `
-        <div class="arch-row">
-          <div class="arch-label">${escapeHtml(row.label)}</div>
-          <div class="arch-items">
-            ${row.items.map((item) => `<span class="arch-item">${escapeHtml(item)}</span>`).join("")}
-          </div>
-        </div>
+      (item) => `
+        <span class="repo-stat">
+          <i data-lucide="${item.icon}" aria-hidden="true"></i>
+          <strong>${escapeHtml(item.value)}</strong>${item.label ? `<span> ${escapeHtml(item.label)}</span>` : ""}
+        </span>
       `,
     )
     .join("");
 }
 
+function formatCount(num) {
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(num >= 10000 ? 0 : 1)}k`;
+  return String(num);
+}
+
+function relativeTime(iso) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const diffMs = Date.now() - date.getTime();
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (days < 1) return "today";
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${Math.floor(days / 7)}w ago`;
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+  return `${Math.floor(days / 365)}y ago`;
+}
+
+function renderArchitecture() {
+  const rows = state.analysis.architecture || [];
+  if (!rows.length) {
+    selectors.architectureMap.innerHTML = "";
+    return;
+  }
+
+  const rowHeight = 88;
+  const rowGap = 16;
+  const labelWidth = 168;
+  const containerWidth = 760;
+  const itemsX = labelWidth + 28;
+  const itemsWidth = containerWidth - itemsX - 16;
+  const svgHeight = rows.length * rowHeight + (rows.length - 1) * rowGap + 16;
+
+  const nodes = rows
+    .map((row, index) => {
+      const y = index * (rowHeight + rowGap) + 8;
+      const items = (row.items || []).slice(0, 5);
+      return { ...row, y, items };
+    });
+
+  const edges = nodes
+    .slice(0, -1)
+    .map((node, i) => {
+      const next = nodes[i + 1];
+      const x = labelWidth / 2;
+      const y1 = node.y + rowHeight;
+      const y2 = next.y;
+      const cx = x;
+      const cy = (y1 + y2) / 2;
+      return `<path class="arch-edge" d="M ${x} ${y1} C ${cx} ${cy} ${cx} ${cy} ${x} ${y2}" />`;
+    })
+    .join("");
+
+  const labelNodes = nodes
+    .map(
+      (node) => `
+        <g class="arch-node">
+          <rect x="0" y="${node.y}" width="${labelWidth}" height="${rowHeight}" rx="14"
+            fill="rgba(45,191,168,0.10)" stroke="rgba(45,191,168,0.45)" stroke-width="1.2" />
+          <text x="${labelWidth / 2}" y="${node.y + rowHeight / 2 - 4}" text-anchor="middle" class="arch-node-label">
+            ${escapeHtml(node.label)}
+          </text>
+          <text x="${labelWidth / 2}" y="${node.y + rowHeight / 2 + 14}" text-anchor="middle" class="arch-node-sub">
+            ${escapeHtml(`L${nodes.indexOf(node) + 1}`)}
+          </text>
+        </g>
+      `,
+    )
+    .join("");
+
+  const itemGroups = nodes
+    .map((node) => {
+      const items = node.items;
+      if (!items.length) return "";
+      const pillHeight = 32;
+      const pillGap = 8;
+      const pillsPerRow = 2;
+      const pillWidth = (itemsWidth - pillGap * (pillsPerRow - 1)) / pillsPerRow;
+      const innerRows = Math.ceil(items.length / pillsPerRow);
+      const totalPillsHeight = innerRows * pillHeight + (innerRows - 1) * pillGap;
+      const startY = node.y + (rowHeight - totalPillsHeight) / 2;
+
+      const pills = items
+        .map((item, index) => {
+          const col = index % pillsPerRow;
+          const row = Math.floor(index / pillsPerRow);
+          const px = itemsX + col * (pillWidth + pillGap);
+          const py = startY + row * (pillHeight + pillGap);
+          return `
+            <g>
+              <rect x="${px}" y="${py}" width="${pillWidth}" height="${pillHeight}" rx="10"
+                fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+              <text x="${px + 12}" y="${py + pillHeight / 2 + 4}" class="arch-node-sub" text-anchor="start">
+                ${escapeHtml(truncate(item, 32))}
+              </text>
+            </g>
+          `;
+        })
+        .join("");
+      return pills;
+    })
+    .join("");
+
+  selectors.architectureMap.innerHTML = `
+    <svg viewBox="0 0 ${containerWidth} ${svgHeight}" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Repository architecture flow">
+      ${edges}
+      ${labelNodes}
+      ${itemGroups}
+    </svg>
+  `;
+}
+
+function truncate(text, n) {
+  const s = String(text);
+  return s.length > n ? s.slice(0, n - 1) + "…" : s;
+}
+
 function renderFiles() {
   selectors.importantFiles.innerHTML = state.analysis.repo.importantFiles
-    .map((file) => `<li>${escapeHtml(file)}</li>`)
+    .map((file) => `<li data-file-path="${escapeHtml(file)}" title="Click to preview">${escapeHtml(file)}</li>`)
     .join("");
+  selectors.importantFiles.querySelectorAll("[data-file-path]").forEach((item) => {
+    item.addEventListener("click", () => openFilePreview(item.dataset.filePath));
+  });
+}
+
+async function openFilePreview(filePath) {
+  const dialog = selectors.fileDialog;
+  if (!dialog || !filePath) return;
+  const repo = state.analysis?.repo;
+  if (!repo || !repo.fullName) return;
+
+  const branch = repo.stats?.defaultBranch || "main";
+  const rawUrl = `https://raw.githubusercontent.com/${repo.fullName}/${branch}/${filePath}`;
+  const webUrl = `${repo.url || `https://github.com/${repo.fullName}`}/blob/${branch}/${filePath}`;
+
+  if (selectors.fileDialogPath) selectors.fileDialogPath.textContent = filePath;
+  if (selectors.fileDialogOpenLink) selectors.fileDialogOpenLink.href = webUrl;
+  if (selectors.fileDialogCode) {
+    selectors.fileDialogCode.textContent = "Loading…";
+    selectors.fileDialogCode.className = "hljs";
+  }
+  if (selectors.fileDialogMeta) selectors.fileDialogMeta.textContent = "Fetching from GitHub raw…";
+
+  if (typeof dialog.showModal === "function") dialog.showModal();
+
+  try {
+    const response = await fetch(rawUrl);
+    if (!response.ok) throw new Error(`GitHub returned ${response.status}`);
+    let text = await response.text();
+    const truncated = text.length > 60_000;
+    if (truncated) {
+      text = text.slice(0, 60_000) + "\n\n... (truncated for preview)";
+    }
+    if (selectors.fileDialogCode) {
+      const lang = languageFromExtension(filePath);
+      selectors.fileDialogCode.textContent = text;
+      selectors.fileDialogCode.className = `hljs language-${lang}`;
+      if (window.hljs && typeof window.hljs.highlightElement === "function") {
+        window.hljs.highlightElement(selectors.fileDialogCode);
+      }
+    }
+    if (selectors.fileDialogMeta) {
+      const lineCount = text.split("\n").length;
+      selectors.fileDialogMeta.textContent = `${lineCount} lines · branch: ${branch}${truncated ? " · truncated" : ""}`;
+    }
+  } catch (error) {
+    if (selectors.fileDialogCode) {
+      selectors.fileDialogCode.textContent = `Could not load ${filePath} from GitHub.\n\n${error.message || error}\n\nTry the GitHub link instead.`;
+    }
+    if (selectors.fileDialogMeta) selectors.fileDialogMeta.textContent = "Preview unavailable";
+  }
+}
+
+function languageFromExtension(path) {
+  const ext = (path.split(".").pop() || "").toLowerCase();
+  const map = {
+    js: "javascript", mjs: "javascript", cjs: "javascript",
+    ts: "typescript", tsx: "typescript", jsx: "javascript",
+    py: "python", rb: "ruby", go: "go", rs: "rust", java: "java",
+    kt: "kotlin", swift: "swift", php: "php",
+    html: "xml", svg: "xml", xml: "xml", vue: "xml",
+    css: "css", scss: "scss", sass: "scss", less: "less",
+    json: "json", yml: "yaml", yaml: "yaml", toml: "ini",
+    md: "markdown", markdown: "markdown",
+    sh: "bash", bash: "bash", zsh: "bash",
+    sql: "sql", c: "c", h: "c", cpp: "cpp", hpp: "cpp",
+  };
+  return map[ext] || "plaintext";
 }
 
 function renderEvidence() {
@@ -928,77 +1376,364 @@ function renderMissions() {
   const selected = missions[state.selectedMission] || missions[0] || state.analysis.missions[0];
 
   selectors.missionList.innerHTML = missions
-    .map(
-      (mission, index) => `
-        <button class="mission-card ${mission.title === selected.title ? "active" : ""}" type="button" data-index="${index}">
-          <strong>${escapeHtml(mission.title)}</strong>
-          <span>${escapeHtml(mission.goal)}</span>
+    .map((mission, index) => {
+      const isActive = mission.title === selected.title;
+      const isComplete = completedMissions.has(mission.title);
+      return `
+        <button class="mission-card ${isActive ? "active" : ""} ${isComplete ? "completed" : ""}" type="button" data-index="${index}">
           <span class="mission-meta">
             <span class="tag ${mission.difficulty.toLowerCase()}">${escapeHtml(mission.difficulty)}</span>
             <span class="tag">${escapeHtml(mission.time)}</span>
+            <span class="mission-check" aria-hidden="true">
+              <i data-lucide="check"></i>
+            </span>
           </span>
+          <strong>${escapeHtml(mission.title)}</strong>
+          <span class="mission-goal">${escapeHtml(mission.goal)}</span>
         </button>
-      `,
-    )
+      `;
+    })
     .join("");
 
   selectors.missionList.querySelectorAll(".mission-card").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      if (event.target.closest(".mission-check")) {
+        return;
+      }
       state.selectedMission = Number(button.dataset.index);
       renderMissions();
     });
+    const check = button.querySelector(".mission-check");
+    if (check) {
+      check.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const idx = Number(button.dataset.index);
+        const mission = missions[idx];
+        if (!mission) return;
+        if (completedMissions.has(mission.title)) {
+          completedMissions.delete(mission.title);
+        } else {
+          completedMissions.add(mission.title);
+        }
+        renderMissions();
+        maybeCelebrate();
+      });
+    }
   });
 
+  updateMissionProgress();
+  refreshIcons();
   renderMissionDetail(selected);
+}
+
+function updateMissionProgress() {
+  const total = state.analysis.missions.length;
+  let done = 0;
+  state.analysis.missions.forEach((m) => {
+    if (completedMissions.has(m.title)) done += 1;
+  });
+  if (selectors.missionProgressDone) selectors.missionProgressDone.textContent = done;
+  if (selectors.missionProgressTotal) selectors.missionProgressTotal.textContent = total;
+  if (selectors.missionProgressFill) {
+    const pct = total > 0 ? (done / total) * 100 : 0;
+    selectors.missionProgressFill.style.width = `${pct}%`;
+  }
+  if (selectors.missionProgressBar) {
+    selectors.missionProgressBar.classList.toggle("complete", done >= total && total > 0);
+  }
+}
+
+function maybeCelebrate() {
+  const total = state.analysis.missions.length;
+  const done = state.analysis.missions.filter((m) => completedMissions.has(m.title)).length;
+  const score = state.analysis.readiness?.score || 0;
+  if (done >= total && total > 0 && score >= 80 && !confettiFired) {
+    confettiFired = true;
+    fireConfetti();
+    setTimeout(() => { confettiFired = false; }, 6000);
+  }
+}
+
+function fireConfetti() {
+  if (typeof window === "undefined" || typeof window.confetti !== "function") return;
+  const colors = ["#2dbfa8", "#6a8fd9", "#f0b35f", "#ffffff"];
+  const fire = (originX, particleCount, spread) => {
+    window.confetti({
+      particleCount,
+      angle: 60,
+      spread,
+      origin: { x: originX, y: 0.7 },
+      colors,
+      scalar: 0.9,
+    });
+    window.confetti({
+      particleCount,
+      angle: 120,
+      spread,
+      origin: { x: 1 - originX, y: 0.7 },
+      colors,
+      scalar: 0.9,
+    });
+  };
+  fire(0.1, 70, 60);
+  setTimeout(() => fire(0.2, 50, 80), 180);
+  setTimeout(() => fire(0.3, 40, 100), 360);
 }
 
 function renderMissionDetail(mission) {
   selectors.missionDetail.innerHTML = `
     <div class="section-kicker">Selected Mission</div>
-    <h3>${escapeHtml(mission.title)}</h3>
+    <h2 style="margin-bottom:12px; text-transform:none; letter-spacing:-0.3px; font-size:1.25rem;">${escapeHtml(mission.title)}</h2>
     <p>${escapeHtml(mission.goal)}</p>
+
     <h3>Relevant Files</h3>
-    <ul class="evidence-list">
-      ${mission.files.map((file) => `<li>${escapeHtml(file)}</li>`).join("")}
+    <ul class="files-pill-list">
+      ${mission.files.map((file) => `<li class="files-pill" data-file-path="${escapeHtml(file)}">${escapeHtml(file)}</li>`).join("")}
     </ul>
-    <h3>Mentor Hints</h3>
+
+    <h3>Mentor Hints · click to reveal</h3>
     <ul class="hint-list">
-      ${mission.hints.map((hint) => `<li>${escapeHtml(hint)}</li>`).join("")}
+      ${mission.hints
+        .map(
+          (hint, i) => `
+            <li class="hint-item" data-hint-index="${i}">
+              <button class="hint-toggle" type="button">
+                <span class="hint-num">${i + 1}</span>
+                <span class="hint-label">Hint ${i + 1}</span>
+                <i data-lucide="chevron-down" class="hint-chevron"></i>
+              </button>
+              <div class="hint-body">${escapeHtml(hint)}</div>
+            </li>
+          `,
+        )
+        .join("")}
     </ul>
+
     <h3>Suggested Test</h3>
     <p>${escapeHtml(mission.test)}</p>
+
     <h3>Learning Outcome</h3>
     <p>${escapeHtml(mission.outcome)}</p>
+
+    <div class="mission-actions">
+      <button class="ghost-button" type="button" data-action="open-in-bob">
+        <i data-lucide="bot" aria-hidden="true"></i>
+        <span>Open in Bob</span>
+      </button>
+      <button class="ghost-button" type="button" data-action="copy-mission">
+        <i data-lucide="copy" aria-hidden="true"></i>
+        <span>Copy mission</span>
+      </button>
+      <button class="ghost-button" type="button" data-action="reveal-all-hints">
+        <i data-lucide="lightbulb" aria-hidden="true"></i>
+        <span>Reveal all hints</span>
+      </button>
+    </div>
   `;
+
+  selectors.missionDetail.querySelectorAll(".hint-item").forEach((item) => {
+    const toggle = item.querySelector(".hint-toggle");
+    toggle.addEventListener("click", () => {
+      item.classList.toggle("revealed");
+    });
+  });
+
+  selectors.missionDetail.querySelectorAll("[data-file-path]").forEach((pill) => {
+    pill.addEventListener("click", () => openFilePreview(pill.dataset.filePath));
+  });
+
+  selectors.missionDetail.querySelectorAll("[data-action]").forEach((btn) => {
+    btn.addEventListener("click", () => handleMissionAction(btn.dataset.action, mission));
+  });
+
+  refreshIcons();
+}
+
+function handleMissionAction(action, mission) {
+  if (action === "open-in-bob") {
+    const prompt = buildMissionBobPrompt(mission, state.analysis);
+    copyText(prompt);
+    setStatus("Bob prompt copied · paste in Bob IDE", "clipboard-check");
+  } else if (action === "copy-mission") {
+    const text = formatMissionAsText(mission);
+    copyText(text);
+    setStatus("Mission copied", "clipboard-check");
+  } else if (action === "reveal-all-hints") {
+    selectors.missionDetail.querySelectorAll(".hint-item").forEach((item) => item.classList.add("revealed"));
+  }
+}
+
+function buildMissionBobPrompt(mission, analysis) {
+  return `I'm working through a RepoQuest onboarding mission for ${analysis.repo.fullName || analysis.repo.name}.
+
+Mission: ${mission.title}
+Difficulty: ${mission.difficulty} · Est. time: ${mission.time}
+
+Goal:
+${mission.goal}
+
+Relevant files (please open these in the workspace):
+${mission.files.map((f) => `- ${f}`).join("\n")}
+
+Suggested test / verification:
+${mission.test}
+
+Please:
+1. Read the files above with full repository context.
+2. Walk me through the flow they implement.
+3. Tell me one tiny improvement I could ship as a first PR.
+4. Tell me exactly what to test before pushing.
+
+Keep answers concrete and reference specific lines when helpful.`;
+}
+
+function formatMissionAsText(mission) {
+  return `${mission.title}
+
+Difficulty: ${mission.difficulty}
+Estimated time: ${mission.time}
+
+Goal: ${mission.goal}
+
+Files:
+${mission.files.map((f) => `  - ${f}`).join("\n")}
+
+Hints:
+${mission.hints.map((h, i) => `  ${i + 1}. ${h}`).join("\n")}
+
+Suggested test:
+  ${mission.test}
+
+Learning outcome:
+  ${mission.outcome}`;
 }
 
 function renderPrPlan() {
-  const { firstPr } = state.analysis;
+  const { firstPr, repo } = state.analysis;
   selectors.prTitle.textContent = firstPr.title;
+  if (selectors.prPreviewTitle) selectors.prPreviewTitle.textContent = firstPr.title;
+  if (selectors.prRepoLabel) selectors.prRepoLabel.textContent = repo.fullName || repo.name;
+  if (selectors.prRiskBadge) {
+    const risk = firstPr.risk || "Low";
+    selectors.prRiskBadge.innerHTML = `<i data-lucide="shield" style="width:12px;vertical-align:-1px"></i> risk: ${escapeHtml(risk.toLowerCase())}`;
+  }
+  if (selectors.prBranchBadge) {
+    selectors.prBranchBadge.innerHTML = `<i data-lucide="git-branch" style="width:12px;vertical-align:-1px"></i> first-pr/onboarding`;
+  }
+
+  if (selectors.prPreviewFiles) {
+    selectors.prPreviewFiles.innerHTML = (firstPr.files || []).slice(0, 4)
+      .map((file) => {
+        const adds = 3 + Math.floor((file.length * 7) % 14);
+        const dels = Math.floor((file.length * 3) % 6);
+        return `
+          <div class="pr-file-row">
+            <i data-lucide="file-text" class="file-icon" aria-hidden="true" style="width:14px;height:14px;"></i>
+            <span>${escapeHtml(file)}</span>
+            <span class="file-diff"><span class="plus">+${adds}</span> <span class="minus">-${dels}</span></span>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
   selectors.implementationSteps.innerHTML = firstPr.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("");
   selectors.testPlan.innerHTML = firstPr.tests.map((step) => `<li>${escapeHtml(step)}</li>`).join("");
   selectors.reviewerChecklist.innerHTML = firstPr.checklist.map((step) => `<li>${escapeHtml(step)}</li>`).join("");
+  refreshIcons();
 }
 
 function renderReadiness() {
   const { readiness } = state.analysis;
   selectors.conceptsLearned.innerHTML = readiness.concepts.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   selectors.nextSteps.innerHTML = readiness.nextSteps.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
-  selectors.difficultyRadar.innerHTML = readiness.radar
-    .map(
-      (item) => `
-        <div class="radar-row">
-          <header>
-            <span>${escapeHtml(item.label)}</span>
-            <span>${item.score}%</span>
-          </header>
-          <div class="bar ${escapeHtml(item.level)}">
-            <span style="width: ${item.score}%"></span>
-          </div>
-        </div>
-      `,
-    )
+  renderRadarChart(readiness.radar);
+}
+
+function renderRadarChart(radar) {
+  if (!selectors.difficultyRadar) return;
+  if (!Array.isArray(radar) || radar.length === 0) {
+    selectors.difficultyRadar.innerHTML = "";
+    return;
+  }
+
+  const size = 280;
+  const center = size / 2;
+  const radius = size * 0.36;
+  const items = radar.slice(0, 5);
+  const count = items.length;
+  const angleFor = (i) => (Math.PI * 2 * i) / count - Math.PI / 2;
+
+  const rings = [0.25, 0.5, 0.75, 1.0]
+    .map((r) => {
+      const pts = items
+        .map((_, i) => {
+          const a = angleFor(i);
+          const x = center + Math.cos(a) * radius * r;
+          const y = center + Math.sin(a) * radius * r;
+          return `${x.toFixed(2)},${y.toFixed(2)}`;
+        })
+        .join(" ");
+      return `<polygon class="radar-axis" points="${pts}" />`;
+    })
     .join("");
+
+  const axes = items
+    .map((_, i) => {
+      const a = angleFor(i);
+      const x = center + Math.cos(a) * radius;
+      const y = center + Math.sin(a) * radius;
+      return `<line class="radar-axis-line" x1="${center}" y1="${center}" x2="${x.toFixed(2)}" y2="${y.toFixed(2)}" />`;
+    })
+    .join("");
+
+  const shapePoints = items
+    .map((item, i) => {
+      const a = angleFor(i);
+      const ratio = Math.max(0, Math.min(1, (item.score || 0) / 100));
+      const x = center + Math.cos(a) * radius * ratio;
+      const y = center + Math.sin(a) * radius * ratio;
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+    .join(" ");
+
+  const dots = items
+    .map((item, i) => {
+      const a = angleFor(i);
+      const ratio = Math.max(0, Math.min(1, (item.score || 0) / 100));
+      const x = center + Math.cos(a) * radius * ratio;
+      const y = center + Math.sin(a) * radius * ratio;
+      return `<circle class="radar-dot" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4.5" />`;
+    })
+    .join("");
+
+  const labels = items
+    .map((item, i) => {
+      const a = angleFor(i);
+      const labelR = radius + 18;
+      const x = center + Math.cos(a) * labelR;
+      const y = center + Math.sin(a) * labelR;
+      const anchor = Math.cos(a) > 0.3 ? "start" : Math.cos(a) < -0.3 ? "end" : "middle";
+      const dy = Math.sin(a) > 0.3 ? 12 : Math.sin(a) < -0.3 ? -4 : 4;
+      const label = truncate(item.label, 22);
+      return `
+        <g>
+          <text class="radar-label" x="${x.toFixed(2)}" y="${(y + dy).toFixed(2)}" text-anchor="${anchor}">${escapeHtml(label)}</text>
+          <text class="radar-value" x="${x.toFixed(2)}" y="${(y + dy + 14).toFixed(2)}" text-anchor="${anchor}">${item.score}%</text>
+        </g>
+      `;
+    })
+    .join("");
+
+  selectors.difficultyRadar.innerHTML = `
+    <svg viewBox="0 0 ${size} ${size}" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Contribution difficulty radar">
+      ${rings}
+      ${axes}
+      <polygon class="radar-shape" points="${shapePoints}" />
+      ${dots}
+      ${labels}
+    </svg>
+  `;
 }
 
 function getFilteredMissions() {

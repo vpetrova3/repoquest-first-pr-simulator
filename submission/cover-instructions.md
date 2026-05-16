@@ -1,67 +1,71 @@
-# How to capture the 16:9 cover image
+# Cover image — what's already in this folder, and how to redo it
 
-The cover template is a self-contained HTML page sized exactly 1600×900. Three ways to capture it.
+## TL;DR
 
-## Fastest: macOS Chrome / Brave / Edge
+`submission/cover.png` is the **ready-to-submit 1600×900** cover for LabLab. Use it as-is unless you want a sharper render.
 
-1. Open the file:
-   ```
-   open submission/cover.html
-   ```
-   (or drag it into a Chromium browser)
+Two files live here:
 
-2. Open DevTools (⌘⌥I), then toolbar icon **Toggle device toolbar** (⌘⇧M).
+| File | Size | Use |
+|---|---|---|
+| `cover.png` | 1600×900 (16:9) ✅ | **Submit this.** Rendered via `qlmanage` then resampled to 16:9. |
+| `cover-source-1600x1600.png` | 1600×1600 | Raw qlmanage thumbnail. Useful if you want to crop differently in Preview. |
 
-3. In the device toolbar, set **Responsive** → enter dimensions **1600 × 900** → zoom **100%**.
+The 1600×900 version is slightly compressed vertically because Quick Look thumbnails pad to square. The content is fully visible and reads cleanly. For a pitch-perfect, pixel-correct render see "Sharper render" below.
 
-4. Click the kebab menu (⋮) in the device toolbar → **Capture full size screenshot**.
+## How `cover.png` was generated
 
-5. The PNG saves to your Downloads. Rename to `cover.png`, copy into `submission/`:
-   ```
-   cp ~/Downloads/cover.png "submission/cover.png"
-   ```
+```bash
+# from the repo root
+qlmanage -t -s 1600 -o /tmp submission/cover.html
+sips --resampleHeightWidth 900 1600 /tmp/cover.html.png --out submission/cover.png
+```
 
-## Backup: headless Chromium (no UI)
+To regenerate after editing `cover.html`, run those two commands again.
 
-If you have Chrome installed, this works from the terminal:
+## Sharper render (optional, requires Chrome)
+
+If you install Chrome, you can produce a pixel-perfect render with no resampling:
+
+1. Open `submission/cover.html` in Chrome (`open -a "Google Chrome" submission/cover.html`).
+2. DevTools (⌘⌥I) → Device toolbar (⌘⇧M) → set Responsive **1600 × 900** at 100% zoom.
+3. Device toolbar kebab menu (⋮) → **Capture full size screenshot**.
+4. Move the Downloads file to `submission/cover.png` (overwrites the resampled one).
+
+Or headless from terminal, once Chrome is installed:
 
 ```bash
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
-  --headless \
-  --disable-gpu \
-  --hide-scrollbars \
+  --headless --disable-gpu --hide-scrollbars \
   --window-size=1600,900 \
-  --screenshot=submission/cover.png \
+  --screenshot="$(pwd)/submission/cover.png" \
   "file://$(pwd)/submission/cover.html"
 ```
 
-Or with Chromium:
-```bash
-chromium --headless --disable-gpu --hide-scrollbars --window-size=1600,900 \
-  --screenshot=submission/cover.png "file://$(pwd)/submission/cover.html"
-```
+## Sharper render (no extra install, manual)
 
-## Backup: macOS Preview (no extra tools)
+1. Open `submission/cover.html` in Safari.
+2. **View → Actual Size** to ensure 100% zoom.
+3. Resize the Safari window so the dark cover fills the visible area edge-to-edge.
+4. `Cmd+Shift+4`, then `Space`, then click the browser window — captures the visible area.
+5. Open the screenshot in Preview → **Tools → Adjust Size** → 1600×900 with **Scale proportionally** turned OFF and resample.
 
-1. Open `cover.html` in Safari. Cmd+Plus / Cmd+Minus to size so the cover fills your screen at native 1600×900 (use **View → Actual Size**).
-2. Cmd+Shift+4, then Space, then click the browser window.
-3. Crop in Preview to the inner cover box (no browser chrome).
-4. Resize in Preview → **Tools → Adjust Size** → 1600×900.
+## Customizing the cover
+
+Edit `submission/cover.html`. Things worth tweaking:
+
+- **Accent word** in the title — currently `<span class="accent">confusion</span>`.
+- **Demo card rows** — Repo, AI status, Readiness values.
+- **Footer text** — currently includes the GitHub repo URL.
+- **Brand colors** — top of `<style>`, look for `--teal`, `--blue`, `--amber`.
+
+Re-run the qlmanage + sips commands above after each edit to regenerate `cover.png`.
 
 ## Verify before submitting
 
 ```bash
 file submission/cover.png
-# should show: 1600 x 900, ratio 16:9
+# expect: PNG image data, 1600 x 900
 ```
 
-LabLab accepts PNG and JPG. 16:9 is required; 1600×900 is the recommended minimum. If yours is bigger (e.g., 3200×1800 from retina capture), even better — it'll downsize cleanly.
-
-## Customizing the cover
-
-Edit `submission/cover.html` to change:
-
-- **Title accent word** — line containing `<span class="accent">confusion</span>`.
-- **Demo card data** — the rows showing "Analyzing", "Granite 3.3 · live", readiness 94%.
-- **Repo URL in footer** — already set to your repo.
-- **Colors** — top of `<style>` (`--teal`, `--blue`, `--amber`).
+LabLab requires 16:9. 1600×900 is the standard recommended minimum.

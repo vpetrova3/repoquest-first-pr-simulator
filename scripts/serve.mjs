@@ -1,6 +1,7 @@
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { createServer } from "node:http";
+import { buildRepoQuestBrief } from "../api/_repoquest.js";
 
 const root = resolve(process.cwd());
 const port = Number(process.env.PORT || 4173);
@@ -31,6 +32,11 @@ const server = createServer(async (request, response) => {
 
   if (url.pathname === "/api/analyze") {
     await handleAnalyzeRequest(url, response);
+    return;
+  }
+
+  if (url.pathname === "/api/orchestrate/repo-brief") {
+    await handleOrchestrateRepoBriefRequest(url, response);
     return;
   }
 
@@ -94,6 +100,34 @@ async function handleAnalyzeRequest(url, response) {
       paths,
       repo,
     });
+  } catch (error) {
+    const status = error.status || 500;
+    sendJson(response, status, { error: formatGithubError(status) });
+  }
+}
+
+async function handleOrchestrateRepoBriefRequest(url, response) {
+  const repoUrl = url.searchParams.get("repo") || "";
+  const parsed = parseGitHubRepo(repoUrl);
+
+  if (!parsed) {
+    sendJson(response, 400, { error: "Use a GitHub repository URL like https://github.com/owner/repo." });
+    return;
+  }
+
+  try {
+    const repo = await githubRequest(`/repos/${parsed.owner}/${parsed.repo}`);
+    const tree = await githubRequest(`/repos/${parsed.owner}/${parsed.repo}/git/trees/${repo.default_branch}?recursive=1`);
+    const paths = (tree.tree || [])
+      .filter((item) => item.type === "blob")
+      .map((item) => item.path)
+      .slice(0, 1200);
+
+    sendJson(response, 200, buildRepoQuestBrief({
+      authenticated: Boolean(githubToken),
+      paths,
+      repo,
+    }));
   } catch (error) {
     const status = error.status || 500;
     sendJson(response, status, { error: formatGithubError(status) });

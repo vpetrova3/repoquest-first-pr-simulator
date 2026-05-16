@@ -44,9 +44,19 @@ The app shows the AI status badge: **"IBM watsonx · Granite 3.3 · live"** when
    - `WATSONX_URL` (optional) — region URL, defaults to `https://us-south.ml.cloud.ibm.com`
    - `WATSONX_MODEL_ID` (optional) — defaults to `ibm/granite-3-3-8b-instruct`
    - `GITHUB_TOKEN` (optional) — fine-grained read-only PAT for private repo analysis
-4. Deploy. The serverless functions live at `/api/analyze`, `/api/llm`, `/api/llm/status`.
+4. Deploy. The serverless functions live at `/api/analyze`, `/api/llm`, `/api/llm/status`, and `/api/orchestrate/repo-brief`.
 
 See [`.env.example`](./.env.example) for the full variable list.
+
+## Optional watsonx Orchestrate Extension
+
+RepoQuest can also be wrapped as a watsonx Orchestrate agent tool. This is optional for the IBM Bob Hackathon, but useful for a stretch demo.
+
+- [`orchestrate/repoquest-openapi.yaml`](orchestrate/repoquest-openapi.yaml) — importable OpenAPI tool for watsonx Orchestrate.
+- [`orchestrate/agent-instructions.md`](orchestrate/agent-instructions.md) — copy-ready `RepoQuest Coach` agent profile and prompts.
+- `/api/orchestrate/repo-brief` — deployed endpoint that returns repo metadata, architecture layers, missions, first PR plan, and readiness signals.
+
+Demo story: **Bob helped build RepoQuest, watsonx.ai powers the live Granite layer, and watsonx Orchestrate can expose RepoQuest as a reusable onboarding agent.**
 
 ## Architecture
 
@@ -70,6 +80,7 @@ Browser (vanilla JS, no build, no framework)
 - [`scripts/serve.mjs`](scripts/serve.mjs) — local Node dev server with `/api/analyze`, `/api/llm`, `/api/llm/status`.
 - [`api/`](api/) — Vercel serverless functions (production equivalents of the local routes).
 - [`api/_watsonx.js`](api/_watsonx.js) — IAM token exchange, watsonx config, JSON helpers.
+- [`orchestrate/`](orchestrate/) — optional watsonx Orchestrate OpenAPI tool and agent instructions.
 
 ## Core flow
 
@@ -110,6 +121,7 @@ Export task histories and consumption screenshots live in [`bob_sessions/`](./bo
 - Contribution difficulty radar (three ranked options)
 - Readiness report with concepts learned and next steps
 - IBM Bob prompt pack (copy-to-clipboard for offline Bob IDE use)
+- Optional watsonx Orchestrate OpenAPI tool for a RepoQuest Coach agent
 - Demo fallback when GitHub API is unavailable
 - Mobile-responsive layout
 
@@ -124,9 +136,16 @@ Export task histories and consumption screenshots live in [`bob_sessions/`](./bo
 │   └── serve.mjs              # local Node dev server with API routes
 ├── api/                       # Vercel serverless functions (production)
 │   ├── _watsonx.js            # shared IAM + helpers
+│   ├── _repoquest.js          # shared Orchestrate brief builder
 │   ├── analyze.js             # GitHub repo analysis
 │   ├── llm.js                 # watsonx Granite proxy
-│   └── llm/status.js          # provider/model status
+│   ├── llm/status.js          # provider/model status
+│   └── orchestrate/
+│       └── repo-brief.js      # OpenAPI-friendly RepoQuest brief endpoint
+├── orchestrate/               # optional watsonx Orchestrate agent assets
+│   ├── README.md
+│   ├── agent-instructions.md
+│   └── repoquest-openapi.yaml
 ├── bob_sessions/              # IBM Bob task exports + consumption screenshots
 ├── submission/                # cover image template, slide deck, video script
 ├── sample_outputs/

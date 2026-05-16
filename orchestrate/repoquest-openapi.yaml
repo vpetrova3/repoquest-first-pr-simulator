@@ -1,0 +1,139 @@
+openapi: 3.0.3
+info:
+  title: RepoQuest Orchestrate Tool
+  version: 1.0.0
+  description: >
+    OpenAPI tool for IBM watsonx Orchestrate. It lets a RepoQuest Coach agent
+    analyze a GitHub repository URL and return a first pull request onboarding brief.
+servers:
+  - url: https://YOUR-VERCEL-APP.vercel.app
+    description: Replace this with the deployed RepoQuest URL before importing.
+paths:
+  /api/orchestrate/repo-brief:
+    get:
+      operationId: createRepoQuestBrief
+      summary: Create a first PR onboarding brief for a GitHub repository.
+      description: >
+        Fetches public GitHub repository metadata and file paths, then returns
+        a RepoQuest brief with architecture layers, missions, first PR plan,
+        and readiness signals. Private repositories can be supported if the
+        deployed RepoQuest server has GITHUB_TOKEN configured.
+      parameters:
+        - name: repo
+          in: query
+          required: true
+          description: Full GitHub repository URL.
+          schema:
+            type: string
+            example: https://github.com/tastejs/todomvc
+      responses:
+        "200":
+          description: RepoQuest onboarding brief.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepoQuestBrief"
+        "400":
+          description: Invalid GitHub repository URL.
+        "403":
+          description: GitHub denied access or rate-limited the request.
+        "404":
+          description: Repository was not found or is private without server-side access.
+components:
+  schemas:
+    RepoQuestBrief:
+      type: object
+      properties:
+        source:
+          type: string
+          example: RepoQuest Orchestrate tool
+        generatedAt:
+          type: string
+          format: date-time
+        repo:
+          type: object
+          properties:
+            name:
+              type: string
+            fullName:
+              type: string
+            url:
+              type: string
+            description:
+              type: string
+            defaultBranch:
+              type: string
+            primaryLanguage:
+              type: string
+            stars:
+              type: number
+            forks:
+              type: number
+            openIssues:
+              type: number
+            authenticated:
+              type: boolean
+        summary:
+          type: string
+        techStack:
+          type: array
+          items:
+            type: string
+        keyFiles:
+          type: array
+          items:
+            type: string
+        architecture:
+          type: array
+          items:
+            type: object
+            properties:
+              layer:
+                type: string
+              files:
+                type: array
+                items:
+                  type: string
+        missions:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              difficulty:
+                type: string
+              time:
+                type: string
+              files:
+                type: array
+                items:
+                  type: string
+              outcome:
+                type: string
+        firstPrPlan:
+          type: object
+          properties:
+            title:
+              type: string
+            risk:
+              type: string
+            files:
+              type: array
+              items:
+                type: string
+            steps:
+              type: array
+              items:
+                type: string
+            reviewerChecklist:
+              type: array
+              items:
+                type: string
+        readiness:
+          type: object
+          properties:
+            score:
+              type: number
+            nextBestAction:
+              type: string

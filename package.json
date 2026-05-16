@@ -6,7 +6,7 @@
   "description": "A dependency-free IBM Bob Hackathon project that turns a GitHub repo into a guided first PR journey, powered live by IBM watsonx Granite.",
   "scripts": {
     "start": "node scripts/serve.mjs",
-    "check": "node --check app.js && node --check scripts/serve.mjs && node --check api/analyze.js && node --check api/llm.js && node --check api/llm/status.js && node --check api/_watsonx.js"
+    "check": "node --check app.js && node --check scripts/serve.mjs && node --check api/analyze.js && node --check api/llm.js && node --check api/llm/status.js && node --check api/_watsonx.js && node --check api/_repoquest.js && node --check api/orchestrate/repo-brief.js"
   },
   "keywords": [
     "ibm-bob",

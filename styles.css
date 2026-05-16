@@ -945,14 +945,15 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   display: grid;
   gap: 10px;
   width: 100%;
-  padding: 16px 18px;
-  border: 1px solid var(--line);
+  padding: 18px 20px;
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-md);
-  background: var(--surface);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.025) 100%);
   text-align: left;
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(8px);
 }
 
 .mission-card::before {
@@ -967,14 +968,14 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 }
 
 .mission-card:hover {
-  background: var(--surface-hover);
-  border-color: var(--line-strong);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.035) 100%);
+  border-color: rgba(255, 255, 255, 0.18);
   transform: translateX(2px);
 }
 
 .mission-card.active {
-  background: rgba(45, 191, 168, 0.08);
-  border-color: rgba(45, 191, 168, 0.45);
+  background: linear-gradient(180deg, rgba(45, 191, 168, 0.14) 0%, rgba(45, 191, 168, 0.04) 100%);
+  border-color: rgba(45, 191, 168, 0.5);
 }
 
 .mission-card.active::before { background: var(--teal); box-shadow: 0 0 12px var(--teal-glow); }
@@ -1054,20 +1055,32 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 }
 
 .mission-detail {
-  padding: 24px;
+  padding: 28px 28px 32px;
   min-height: 380px;
+}
+
+.mission-detail > h2 {
+  margin-bottom: 14px;
 }
 
 .mission-detail p {
   color: var(--muted-strong);
-  margin-bottom: 16px;
+  margin-bottom: 22px;
+  line-height: 1.65;
 }
 
 .mission-detail h3 {
-  margin-top: 18px;
+  margin-top: 28px;
+  margin-bottom: 14px;
+  color: var(--teal);
+  font-size: 0.72rem;
+  letter-spacing: 1.6px;
 }
 
-.mission-detail h3:first-of-type { margin-top: 0; }
+.mission-detail h3:first-of-type { margin-top: 22px; }
+
+.mission-detail .files-pill-list,
+.mission-detail .hint-list { margin-bottom: 4px; }
 
 .hint-list {
   display: grid;
@@ -1308,6 +1321,114 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 10px;
+}
+
+.shortcut-hint {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.shortcut-hint kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  margin: 0 2px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.74rem;
+  color: var(--text-soft);
+  line-height: 1;
+}
+
+.time-estimate {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.time-estimate-value {
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--teal) 0%, #5eddc3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.time-estimate-sub {
+  color: var(--muted-strong);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.time-estimate-sub strong { color: var(--text); font-weight: 800; }
+
+.time-estimate-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.time-estimate-bar > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal) 0%, #6a8fd9 100%);
+  border-radius: 999px;
+  transition: width 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.time-estimate-hint {
+  margin: 12px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.recent-list {
+  display: grid;
+  gap: 6px;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  transition: var(--transition);
+  text-align: left;
+}
+
+.recent-item:hover {
+  background: rgba(45, 191, 168, 0.08);
+  border-color: rgba(45, 191, 168, 0.32);
+  color: var(--teal);
+}
+
+.recent-item svg { width: 13px; height: 13px; color: var(--muted); flex-shrink: 0; }
+
+.recent-item-path { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.recent-item-score {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--teal);
+  font-family: "Inter", sans-serif;
 }
 
 .try-chip {

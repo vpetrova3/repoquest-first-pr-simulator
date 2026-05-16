@@ -138,9 +138,10 @@ const demoAnalysis = {
     score: 86,
     concepts: ["Entry points", "State updates", "Local persistence", "Framework boundaries", "Manual test paths"],
     nextSteps: [
-      "Run IBM Bob on the selected repo and export the task history.",
-      "Replace demo output with Bob-refined architecture and mission notes.",
-      "Record a 3 to 5 minute walkthrough ending on the public bob_sessions folder.",
+      "Start with the highest-scored option in the radar — it's the safest meaningful PR.",
+      "Open the recommended files in the preview before you touch anything. Read first, code second.",
+      "Run the suggested test on a clean clone — if it passes, you have your baseline.",
+      "Time-box the first mission to 25 minutes. Mark it complete when you can explain it.",
     ],
     radar: [
       { label: "README setup clarification", score: 94, level: "low" },
@@ -148,12 +149,6 @@ const demoAnalysis = {
       { label: "Cross-framework behavior change", score: 42, level: "high" },
     ],
   },
-  evidence: [
-    "Use Bob IDE to analyze the selected repository structure.",
-    "Export Bob task history markdown into bob_sessions/.",
-    "Add screenshots of Bob task consumption summaries.",
-    "Show Bob-generated missions and PR plan in the demo video.",
-  ],
 };
 
 const selectors = {
@@ -176,7 +171,6 @@ const selectors = {
   riskLevel: document.querySelector("#riskLevel"),
   architectureMap: document.querySelector("#architectureMap"),
   importantFiles: document.querySelector("#importantFiles"),
-  evidenceList: document.querySelector("#evidenceList"),
   missionList: document.querySelector("#missionList"),
   missionDetail: document.querySelector("#missionDetail"),
   segments: document.querySelectorAll(".segment"),
@@ -213,7 +207,16 @@ const selectors = {
   fileDialogMeta: document.querySelector("#fileDialogMeta"),
   fileDialogOpenLink: document.querySelector("#fileDialogOpenLink"),
   mainStage: document.querySelector(".main-stage"),
+  timeEstimateValue: document.querySelector("#timeEstimateValue"),
+  timeEstimateSub: document.querySelector("#timeEstimateSub"),
+  timeEstimateMissions: document.querySelector("#timeEstimateMissions"),
+  timeEstimateBar: document.querySelector("#timeEstimateBar"),
+  recentSection: document.querySelector("#recentSection"),
+  recentList: document.querySelector("#recentList"),
 };
+
+const STORAGE_KEY_RECENT = "repoquest:recent-analyses";
+const STORAGE_KEY_COMPLETED = "repoquest:completed-missions";
 
 const RING_CIRCUMFERENCE = 2 * Math.PI * 52;
 let confettiFired = false;
@@ -363,6 +366,23 @@ function bindEvents() {
     });
   }
 
+  document.addEventListener("keydown", (event) => {
+    const cmd = event.metaKey || event.ctrlKey;
+    if (cmd && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      selectors.repoUrl?.focus();
+      selectors.repoUrl?.select();
+    } else if (cmd && (event.key === "Enter" || event.key === "Return")) {
+      event.preventDefault();
+      if (document.activeElement === selectors.repoUrl) {
+        analyzeRepository(selectors.repoUrl.value.trim());
+      }
+    } else if (event.key === "Escape") {
+      if (selectors.promptDialog?.open) selectors.promptDialog.close();
+      if (selectors.fileDialog?.open) selectors.fileDialog.close();
+    }
+  });
+
   selectors.segments.forEach((segment) => {
     segment.addEventListener("click", () => {
       selectors.segments.forEach((item) => item.classList.remove("active"));
@@ -493,12 +513,6 @@ function applyLlmEnhancements(baseAnalysis, enhancements, runId) {
 
   if (touched) {
     next.source = "IBM watsonx (Granite) live analysis";
-    next.evidence = [
-      `watsonx generated repository understanding for ${baseAnalysis.repo.fullName || baseAnalysis.repo.name}.`,
-      "Heuristic pass produced the initial map; Granite refined missions, summary, and first PR plan in the live app.",
-      "Run Bob IDE prompts in parallel to capture session evidence for bob_sessions/.",
-      "Demo video should show the moment the watsonx badge flips from 'enhancing' to 'live'.",
-    ];
     setAnalysis(next);
     flashEnhancedSections(enhancedSections);
   }
@@ -776,9 +790,10 @@ function buildHeuristicAnalysis(repo, paths, authenticated = false) {
       score,
       concepts: inferConcepts(techStack, importantFiles),
       nextSteps: [
-        "Open this repository in IBM Bob IDE and ask Bob to validate the generated map.",
-        "Export the Bob task history and consumption screenshot into bob_sessions/.",
-        "Use the PR plan as the final demo moment after one mission walkthrough.",
+        `Start with the first beginner mission — give yourself ${parseMinutes(missions[0]?.time) || 20} minutes.`,
+        `Open ${importantFiles[0] || "the entry point"} in the preview before you write any code.`,
+        `Run the suggested test on a clean clone — if it passes, that's your safety net.`,
+        `Mark missions complete as you go. Hit ${Math.min(94, score + 10)}% readiness and you're ready to PR.`,
       ],
       radar: [
         { label: firstPr.title, score: Math.min(96, score + 8), level: "low" },
@@ -786,12 +801,6 @@ function buildHeuristicAnalysis(repo, paths, authenticated = false) {
         { label: "Shared architecture refactor", score: Math.max(28, score - 42), level: "high" },
       ],
     },
-    evidence: [
-      `RepoQuest fetched ${paths.length} files from ${repo.full_name}${repo.private ? " using authenticated server-side access" : ""}.`,
-      "IBM Bob IDE should validate architecture, missions, tests, and PR scope.",
-      "Export final Bob task histories into bob_sessions/ before submission.",
-      "Use the generated prompt pack to keep Bob usage visible in the demo.",
-    ],
   };
 }
 
@@ -1011,7 +1020,92 @@ function setAnalysis(analysis) {
   state.selectedMission = 0;
   clearSkeletons();
   completedMissions.clear();
+  loadCompletedMissionsForRepo(analysis?.repo);
+  recordRecentAnalysis(analysis);
   render();
+}
+
+function loadCompletedMissionsForRepo(repo) {
+  if (!repo) return;
+  const key = repoStorageKey(repo);
+  try {
+    const raw = localStorage.getItem(`${STORAGE_KEY_COMPLETED}:${key}`);
+    if (!raw) return;
+    const list = JSON.parse(raw);
+    if (Array.isArray(list)) list.forEach((title) => completedMissions.add(title));
+  } catch {
+    // ignore
+  }
+}
+
+function persistCompletedMissions() {
+  const repo = state.analysis?.repo;
+  if (!repo) return;
+  const key = repoStorageKey(repo);
+  try {
+    localStorage.setItem(`${STORAGE_KEY_COMPLETED}:${key}`, JSON.stringify([...completedMissions]));
+  } catch {
+    // ignore
+  }
+}
+
+function repoStorageKey(repo) {
+  return repo.fullName || repo.url || repo.name || "demo";
+}
+
+function recordRecentAnalysis(analysis) {
+  if (!analysis?.repo) return;
+  if (analysis.source === "Prepared demo output") return;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_RECENT);
+    const list = raw ? JSON.parse(raw) : [];
+    const entry = {
+      fullName: analysis.repo.fullName,
+      url: analysis.repo.url,
+      score: analysis.readiness?.score || 0,
+      at: Date.now(),
+    };
+    const filtered = list.filter((x) => x.fullName !== entry.fullName);
+    filtered.unshift(entry);
+    localStorage.setItem(STORAGE_KEY_RECENT, JSON.stringify(filtered.slice(0, 5)));
+  } catch {
+    // ignore
+  }
+}
+
+function renderRecentAnalyses() {
+  if (!selectors.recentList || !selectors.recentSection) return;
+  let list = [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_RECENT);
+    list = raw ? JSON.parse(raw) : [];
+  } catch {
+    list = [];
+  }
+  if (!list.length) {
+    selectors.recentSection.hidden = true;
+    return;
+  }
+  selectors.recentSection.hidden = false;
+  selectors.recentList.innerHTML = list
+    .map(
+      (item) => `
+        <button class="recent-item" type="button" data-url="${escapeHtml(item.url || "")}">
+          <i data-lucide="git-branch" aria-hidden="true"></i>
+          <span class="recent-item-path">${escapeHtml(item.fullName || "")}</span>
+          <span class="recent-item-score">${item.score}%</span>
+        </button>
+      `,
+    )
+    .join("");
+  selectors.recentList.querySelectorAll(".recent-item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const url = btn.dataset.url;
+      if (!url) return;
+      selectors.repoUrl.value = url;
+      analyzeRepository(url);
+    });
+  });
 }
 
 function clearSkeletons() {
@@ -1022,11 +1116,41 @@ function render() {
   renderOverview();
   renderArchitecture();
   renderFiles();
-  renderEvidence();
   renderMissions();
   renderPrPlan();
   renderReadiness();
+  renderTimeEstimate();
+  renderRecentAnalyses();
   refreshIcons();
+}
+
+function renderTimeEstimate() {
+  if (!selectors.timeEstimateValue) return;
+  const missions = state.analysis?.missions || [];
+  const total = missions.reduce((acc, m) => acc + parseMinutes(m.time), 0);
+  selectors.timeEstimateValue.textContent = formatDuration(total);
+  if (selectors.timeEstimateMissions) selectors.timeEstimateMissions.textContent = String(missions.length);
+  if (selectors.timeEstimateBar) {
+    const pct = Math.min(100, (total / 180) * 100);
+    selectors.timeEstimateBar.style.width = `${pct}%`;
+  }
+}
+
+function parseMinutes(text) {
+  if (!text) return 0;
+  const m = String(text).match(/(\d+)\s*min/i);
+  if (m) return Number(m[1]);
+  const h = String(text).match(/(\d+)\s*h/i);
+  if (h) return Number(h[1]) * 60;
+  return 0;
+}
+
+function formatDuration(mins) {
+  if (!mins || mins <= 0) return "—";
+  if (mins < 60) return `${mins}m`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
 }
 
 function renderOverview() {
@@ -1367,10 +1491,6 @@ function languageFromExtension(path) {
   return map[ext] || "plaintext";
 }
 
-function renderEvidence() {
-  selectors.evidenceList.innerHTML = state.analysis.evidence.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
-}
-
 function renderMissions() {
   const missions = getFilteredMissions();
   const selected = missions[state.selectedMission] || missions[0] || state.analysis.missions[0];
@@ -1415,6 +1535,7 @@ function renderMissions() {
         } else {
           completedMissions.add(mission.title);
         }
+        persistCompletedMissions();
         renderMissions();
         maybeCelebrate();
       });
@@ -1744,27 +1865,58 @@ function getFilteredMissions() {
 }
 
 function buildBobPrompt(analysis) {
-  const fileList = analysis.repo.importantFiles.map((file) => `- ${file}`).join("\n");
-  return `You are helping us build RepoQuest: First PR Simulator for the IBM Bob Hackathon.
+  return buildAnalysisBrief(analysis);
+}
 
-Repository: ${analysis.repo.fullName || analysis.repo.name}
-URL: ${analysis.repo.url}
+function buildAnalysisBrief(analysis) {
+  const { repo, missions, firstPr, readiness } = analysis;
+  const stats = repo.stats || {};
+  const statLine = [
+    stats.stars != null ? `${stats.stars.toLocaleString()} stars` : null,
+    stats.forks != null ? `${stats.forks.toLocaleString()} forks` : null,
+    stats.language || null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
-Current RepoQuest draft summary:
-${analysis.repo.summary}
+  return `RepoQuest — onboarding brief for ${repo.fullName || repo.name}
+${repo.url ? repo.url + "\n" : ""}${statLine ? statLine + "\n" : ""}
+SUMMARY
+${repo.summary}
 
-Important files identified by RepoQuest:
-${fileList}
+TECH STACK
+${repo.techStack.join(", ")}
 
-Please use full repository context to:
-1. Validate or correct the architecture map.
-2. Identify the real entry points, workflows, and test conventions.
-3. Generate five beginner-friendly onboarding missions.
-4. Recommend one beginner-safe but meaningful first PR.
-5. Provide a PR title, description, implementation steps, risk notes, and test plan.
-6. Summarize what should be exported into bob_sessions/ for judging.
+START HERE
+${repo.importantFiles.map((file) => `- ${file}`).join("\n")}
 
-Return the answer in sections: Repository Overview, Architecture Map, Missions, First PR Plan, Test Plan, Bob Evidence Notes.`;
+ONBOARDING MISSIONS (${missions.length}, ~${formatDuration(missions.reduce((a, m) => a + parseMinutes(m.time), 0))})
+${missions
+  .map(
+    (m, i) => `${i + 1}. ${m.title} [${m.difficulty} · ${m.time}]
+   Goal: ${m.goal}
+   Files: ${m.files.join(", ")}
+   Test: ${m.test}`,
+  )
+  .join("\n\n")}
+
+FIRST PULL REQUEST (${firstPr.risk} risk)
+Title: ${firstPr.title}
+Files: ${firstPr.files.join(", ")}
+
+Steps:
+${firstPr.steps.map((s, i) => `  ${i + 1}. ${s}`).join("\n")}
+
+Test plan:
+${firstPr.tests.map((t, i) => `  ${i + 1}. ${t}`).join("\n")}
+
+Reviewer checklist:
+${firstPr.checklist.map((c) => `  - ${c}`).join("\n")}
+
+READINESS (${readiness.score}%)
+Concepts you'll learn: ${readiness.concepts.join(", ")}
+
+Generated by RepoQuest.`;
 }
 
 function buildPrPlanText(analysis) {

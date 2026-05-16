@@ -82,35 +82,37 @@
                 <span>Use Demo</span>
               </button>
               <button class="ghost-button" type="button" id="promptButton">
-                <i data-lucide="clipboard-list" aria-hidden="true"></i>
-                <span>Bob Prompt</span>
+                <i data-lucide="file-down" aria-hidden="true"></i>
+                <span>Export brief</span>
               </button>
             </div>
+            <div class="shortcut-hint" aria-hidden="true">
+              <kbd>⌘</kbd><kbd>K</kbd> focus &nbsp;·&nbsp;
+              <kbd>⌘</kbd><kbd>⏎</kbd> analyze
+            </div>
           </section>
 
-          <section class="panel-section compact" aria-labelledby="bobEvidenceTitle">
+          <section class="panel-section compact" aria-labelledby="time-to-prTitle">
             <div class="panel-heading">
-              <i data-lucide="bot" aria-hidden="true"></i>
-              <h2 id="bobEvidenceTitle">IBM Bob Evidence</h2>
+              <i data-lucide="clock-3" aria-hidden="true"></i>
+              <h2 id="time-to-prTitle">Time to first PR</h2>
             </div>
-            <ul class="evidence-list" id="evidenceList"></ul>
+            <div class="time-estimate">
+              <span class="time-estimate-value" id="timeEstimateValue">—</span>
+              <span class="time-estimate-sub" id="timeEstimateSub">across <strong id="timeEstimateMissions">0</strong> missions</span>
+            </div>
+            <div class="time-estimate-bar">
+              <span id="timeEstimateBar" style="width: 0%"></span>
+            </div>
+            <p class="time-estimate-hint">Time-box each mission. Stop when the box runs out.</p>
           </section>
 
-          <section class="panel-section compact" aria-labelledby="submissionTitle">
+          <section class="panel-section compact" aria-labelledby="recentTitle" id="recentSection" hidden>
             <div class="panel-heading">
-              <i data-lucide="send" aria-hidden="true"></i>
-              <h2 id="submissionTitle">Submission Assets</h2>
+              <i data-lucide="history" aria-hidden="true"></i>
+              <h2 id="recentTitle">Recent</h2>
             </div>
-            <div class="asset-grid">
-              <span>Public repo</span>
-              <strong class="status-ready">Ready</strong>
-              <span>Demo URL</span>
-              <strong class="status-needed">Needed</strong>
-              <span>Bob exports</span>
-              <strong class="status-needed">Needed</strong>
-              <span>Video</span>
-              <strong class="status-needed">Needed</strong>
-            </div>
+            <div class="recent-list" id="recentList"></div>
           </section>
         </aside>
 
@@ -307,8 +309,8 @@
     <dialog id="promptDialog" class="prompt-dialog">
       <form method="dialog">
         <div class="dialog-header">
-          <h2>IBM Bob Prompt Pack</h2>
-          <button class="icon-only" type="submit" aria-label="Close prompt dialog">
+          <h2>Onboarding brief</h2>
+          <button class="icon-only" type="submit" aria-label="Close brief">
             <i data-lucide="x" aria-hidden="true"></i>
           </button>
         </div>
@@ -316,7 +318,7 @@
         <div class="dialog-actions">
           <button class="ghost-button" type="button" id="copyPromptButton">
             <i data-lucide="copy" aria-hidden="true"></i>
-            <span>Copy Prompt</span>
+            <span>Copy brief</span>
           </button>
         </div>
       </form>

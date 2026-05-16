@@ -231,28 +231,19 @@ async function analyzeRepository(url) {
   setStatus("Analyzing repo", "loader-circle");
 
   try {
-    const repoResponse = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`);
-    if (!repoResponse.ok) {
-      throw new Error("Repository metadata request failed");
+    const serverAnalysis = await fetchServerAnalysis(url);
+    if (serverAnalysis) {
+      setAnalysis(buildHeuristicAnalysis(serverAnalysis.repo, serverAnalysis.paths, serverAnalysis.authenticated));
+      setStatus(serverAnalysis.repo.private ? "Private analysis ready" : "Analysis ready", "badge-check");
+      return;
     }
-    const repo = await repoResponse.json();
-    const treeResponse = await fetch(
-      `https://api.github.com/repos/${parsed.owner}/${parsed.repo}/git/trees/${repo.default_branch}?recursive=1`,
-    );
-    if (!treeResponse.ok) {
-      throw new Error("Repository tree request failed");
-    }
-    const tree = await treeResponse.json();
-    const paths = (tree.tree || [])
-      .filter((item) => item.type === "blob")
-      .map((item) => item.path)
-      .slice(0, 1200);
 
-    setAnalysis(buildHeuristicAnalysis(repo, paths));
+    const publicAnalysis = await fetchPublicGitHubAnalysis(parsed);
+    setAnalysis(buildHeuristicAnalysis(publicAnalysis.repo, publicAnalysis.paths));
     setStatus("Analysis ready", "badge-check");
   } catch (error) {
     console.error(error);
-    setStatus("Demo fallback loaded", "circle-alert");
+    setStatus(error.message || "Demo fallback loaded", "circle-alert");
     setAnalysis({
       ...demoAnalysis,
       source: "Demo fallback after GitHub API error",
@@ -263,6 +254,43 @@ async function analyzeRepository(url) {
       },
     });
   }
+}
+
+async function fetchServerAnalysis(repoUrl) {
+  const response = await fetch(`/api/analyze?repo=${encodeURIComponent(repoUrl)}`);
+  const contentType = response.headers.get("content-type") || "";
+
+  if (!contentType.includes("application/json")) {
+    return null;
+  }
+
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.error || "Repository analysis failed.");
+  }
+
+  return payload;
+}
+
+async function fetchPublicGitHubAnalysis(parsed) {
+  const repoResponse = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`);
+  if (!repoResponse.ok) {
+    throw new Error("Repository metadata request failed.");
+  }
+  const repo = await repoResponse.json();
+  const treeResponse = await fetch(
+    `https://api.github.com/repos/${parsed.owner}/${parsed.repo}/git/trees/${repo.default_branch}?recursive=1`,
+  );
+  if (!treeResponse.ok) {
+    throw new Error("Repository tree request failed.");
+  }
+  const tree = await treeResponse.json();
+  const paths = (tree.tree || [])
+    .filter((item) => item.type === "blob")
+    .map((item) => item.path)
+    .slice(0, 1200);
+
+  return { paths, repo };
 }
 
 function parseGitHubUrl(url) {
@@ -278,7 +306,7 @@ function parseGitHubUrl(url) {
   }
 }
 
-function buildHeuristicAnalysis(repo, paths) {
+function buildHeuristicAnalysis(repo, paths, authenticated = false) {
   const importantFiles = getImportantFiles(paths);
   const techStack = inferTechStack(paths);
   const folders = getTopFolders(paths);
@@ -287,7 +315,7 @@ function buildHeuristicAnalysis(repo, paths) {
   const score = calculateReadinessScore(importantFiles, techStack, missions);
 
   return {
-    source: "Live GitHub tree analysis",
+    source: authenticated ? "Authenticated GitHub tree analysis" : "Live GitHub tree analysis",
     repo: {
       name: repo.name,
       fullName: repo.full_name,
@@ -316,7 +344,7 @@ function buildHeuristicAnalysis(repo, paths) {
       ],
     },
     evidence: [
-      `RepoQuest fetched ${paths.length} files from ${repo.full_name}.`,
+      `RepoQuest fetched ${paths.length} files from ${repo.full_name}${repo.private ? " using authenticated server-side access" : ""}.`,
       "IBM Bob IDE should validate architecture, missions, tests, and PR scope.",
       "Export final Bob task histories into bob_sessions/ before submission.",
       "Use the generated prompt pack to keep Bob usage visible in the demo.",

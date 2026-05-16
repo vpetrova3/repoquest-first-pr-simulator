@@ -22,6 +22,23 @@ http://localhost:4173
 
 No package install is required. The prototype is dependency-free so it can run during the hackathon even if a machine does not have `npm`, `pnpm`, or `yarn`.
 
+## Private Repositories
+
+Public repositories work with no token. Private repositories require a GitHub token because the browser cannot read private GitHub data by itself.
+
+Use a fine-grained GitHub personal access token with read-only access to the private repository contents. Do not commit the token.
+
+Start the local server with:
+
+```bash
+export GITHUB_TOKEN="paste_your_token_here"
+node scripts/serve.mjs
+```
+
+Then open `http://localhost:4173` and paste the private GitHub repository URL.
+
+For deployment, set `GITHUB_TOKEN` as a private environment variable on the hosting platform. Never put the token in `app.js`, `index.html`, screenshots, commits, or `bob_sessions/`.
+
 ## Deployment
 
 This is a static app. Fast options:

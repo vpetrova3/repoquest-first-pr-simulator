@@ -25,6 +25,17 @@ http://localhost:4173
 
 If `node` is missing, install Node.js from the official Node.js website or use a teammate machine that already has Node available.
 
+### Private Repositories
+
+To analyze private GitHub repositories, start the server with a read-only GitHub token:
+
+```bash
+export GITHUB_TOKEN="paste_your_token_here"
+node scripts/serve.mjs
+```
+
+Use a fine-grained personal access token with repository contents read access only. Never commit this token, paste it into frontend files, or include it in screenshots.
+
 ## 3. Get The Latest Code Before Editing
 
 ```bash

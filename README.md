@@ -8,10 +8,9 @@ Built for the **IBM Bob Hackathon, May 2026**.
 
 - **App:** https://repoquest-first-pr-simulator.vercel.app
 - **Repository:** https://github.com/vpetrova3/repoquest-first-pr-simulator
-- **Orchestrate tool check:** https://repoquest-first-pr-simulator.vercel.app/api/orchestrate/repo-brief?repo=https%3A%2F%2Fgithub.com%2Ftastejs%2Ftodomvc
 - **IBM Bob evidence:** [`bob_sessions/`](./bob_sessions/)
+- **watsonx Orchestrate video evidence:** [`submission/orchestrate-agent-demo.mp4`](submission/orchestrate-agent-demo.mp4)
 - **Submission assets:** [`submission/`](./submission/)
-- **Orchestrate demo plan:** [`docs/orchestrate-demo-plan.md`](docs/orchestrate-demo-plan.md)
 
 ## What It Does
 
@@ -33,7 +32,7 @@ The app stays useful even without AI credentials: the heuristic layer still rend
 
 **IBM watsonx.ai with Granite** powers the live LLM layer. The frontend first renders heuristic output, then calls the server-side `/api/llm` route to ask Granite for repo-grounded improvements. The status badge makes this visible during the demo: offline, enhancing, then live.
 
-**IBM watsonx Orchestrate** is included as a stretch integration. The repo contains a `RepoQuest Coach` agent profile and an OpenAPI tool definition that calls the deployed RepoQuest API. The Orchestrate UI may be scoped to the teammate's IBM Cloud account, so the public proof is the Vercel tool endpoint plus the screen recording plan in [`docs/orchestrate-demo-plan.md`](docs/orchestrate-demo-plan.md).
+**IBM watsonx Orchestrate** wraps RepoQuest as a conversational onboarding workflow. The `RepoQuest Coach` agent accepts a GitHub URL, calls the RepoQuest OpenAPI tool, and returns a beginner-friendly first PR recommendation. The 90-second video evidence should live at [`submission/orchestrate-agent-demo.mp4`](submission/orchestrate-agent-demo.mp4).
 
 ## Product Components
 
@@ -43,7 +42,7 @@ The app stays useful even without AI credentials: the heuristic layer still rend
 | GitHub analyzer | Fetches repo metadata and file tree. Public repos work immediately; private repos use a server-side token. | [`api/analyze.js`](api/analyze.js), [`scripts/serve.mjs`](scripts/serve.mjs) |
 | Heuristic engine | Provides instant output without relying on an LLM. | [`app.js`](app.js), [`api/_repoquest.js`](api/_repoquest.js) |
 | watsonx Granite layer | Upgrades summary, missions, and first PR plan with live Granite output. | [`api/llm.js`](api/llm.js), [`api/llm/status.js`](api/llm/status.js), [`api/_watsonx.js`](api/_watsonx.js) |
-| Orchestrate agent tool | Lets a `RepoQuest Coach` agent call RepoQuest as an onboarding tool. | [`orchestrate/`](orchestrate/), [`api/orchestrate/repo-brief.js`](api/orchestrate/repo-brief.js) |
+| Orchestrate agent tool | Lets a `RepoQuest Coach` agent call RepoQuest as an onboarding tool; video evidence lives in submission materials. | [`orchestrate/`](orchestrate/), [`api/orchestrate/repo-brief.js`](api/orchestrate/repo-brief.js), [`submission/orchestrate-agent-video.md`](submission/orchestrate-agent-video.md) |
 | Bob evidence | Proves Bob was used in the build process, not just mentioned in the pitch. | [`bob_sessions/`](bob_sessions/), [`docs/bob-runbook.md`](docs/bob-runbook.md) |
 | Submission materials | Cover image, slide outline, and demo narration. | [`submission/`](submission/) |
 
@@ -127,22 +126,22 @@ node --check api/orchestrate/repo-brief.js
 
 These commands check JavaScript syntax only. The app itself has no build step.
 
-## Orchestrate Agent Demo
+## watsonx Orchestrate
 
-The repo includes everything needed to recreate the optional watsonx Orchestrate agent:
+The Orchestrate layer packages RepoQuest as a conversational agent workflow:
 
-- [`orchestrate/agent-instructions.md`](orchestrate/agent-instructions.md) - `RepoQuest Coach` name, profile, instructions, starter prompts, and demo script.
-- [`orchestrate/repoquest-openapi.yaml`](orchestrate/repoquest-openapi.yaml) - OpenAPI tool definition for `createRepoQuestBrief`.
-- [`api/orchestrate/repo-brief.js`](api/orchestrate/repo-brief.js) - live endpoint that the agent calls.
-- [`api/_repoquest.js`](api/_repoquest.js) - shared brief builder used by the endpoint.
+- `RepoQuest Coach` is the watsonx Orchestrate agent.
+- `createRepoQuestBrief` is the OpenAPI tool imported into Orchestrate.
+- `/api/orchestrate/repo-brief` is the deployed route that returns a structured onboarding brief.
+- [`submission/orchestrate-agent-demo.mp4`](submission/orchestrate-agent-demo.mp4) is the expected path for the 90-second video evidence.
 
-Demo prompt:
+The demo prompt used in the recording:
 
 ```text
 Analyze https://github.com/tastejs/todomvc and recommend a first PR.
 ```
 
-If the deployed agent UI cannot be shared publicly, use the public tool check link in the Live Demo section and the teammate screen-recording checklist in [`docs/orchestrate-demo-plan.md`](docs/orchestrate-demo-plan.md).
+The core product remains the deployed RepoQuest web app. Orchestrate shows how the same analysis can be exposed as an agentic onboarding assistant.
 
 ## Repository Map
 
@@ -163,8 +162,8 @@ If the deployed agent UI cannot be shared publicly, use the public tool check li
 |   `-- serve.mjs              # local dev server with matching API routes
 |-- orchestrate/               # Orchestrate agent instructions and OpenAPI file
 |-- bob_sessions/              # IBM Bob exports and consumption screenshots
-|-- docs/                      # runbooks, prompts, team docs, demo plan
-|-- submission/                # cover image, slides outline, narration
+|-- docs/                      # runbooks, prompts, team docs
+|-- submission/                # cover image, slides outline, narration, Orchestrate video
 |-- sample_outputs/            # sample RepoQuest output
 |-- .env.example               # documented env vars, no secrets
 |-- CONTRIBUTING.md
@@ -177,8 +176,8 @@ If the deployed agent UI cannot be shared publicly, use the public tool check li
 - [x] Public app deployed on Vercel
 - [x] IBM Bob session exports and consumption screenshots
 - [x] Live watsonx Granite integration through `/api/llm`
-- [x] Optional watsonx Orchestrate OpenAPI tool
-- [x] Public Orchestrate endpoint for judge verification
+- [x] watsonx Orchestrate OpenAPI tool
+- [x] 90-second Orchestrate agent video path documented in submission materials
 - [x] Submission cover, slide outline, and narration assets
 - [x] `.env.example` with no secrets
 

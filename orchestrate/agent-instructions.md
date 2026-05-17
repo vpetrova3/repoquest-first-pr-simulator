@@ -1,6 +1,6 @@
 # RepoQuest Coach Agent Instructions
 
-Use these instructions when creating an optional IBM watsonx Orchestrate agent for the hackathon demo.
+Use these instructions when creating the IBM watsonx Orchestrate agent for the hackathon demo.
 
 ## Agent Name
 

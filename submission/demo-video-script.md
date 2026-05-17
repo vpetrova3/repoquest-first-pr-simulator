@@ -91,6 +91,18 @@
 
 ---
 
+## watsonx Orchestrate clip (60-90 seconds)
+
+Use the teammate's Orchestrate recording as a quick cutaway or appendix in the final video.
+
+**Visible:** watsonx Orchestrate agent named `RepoQuest Coach`, prompt entered, response returned.
+
+> "We also wrapped RepoQuest as a watsonx Orchestrate agent. The agent is called RepoQuest Coach. It calls our OpenAPI tool, asks RepoQuest for a structured repo brief, and turns that into a conversational first-PR recommendation. This is the same onboarding engine, shown through an agent workflow."
+
+Video evidence path: [`submission/orchestrate-agent-demo.mp4`](orchestrate-agent-demo.mp4).
+
+---
+
 ## Scene 7 — IBM Bob in the dev loop (3:45 – 4:30)
 
 **Visible:** Switch to Bob IDE window OR show the `bob_sessions/` folder in Finder.

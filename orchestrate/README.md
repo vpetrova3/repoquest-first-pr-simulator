@@ -1,8 +1,8 @@
 # IBM watsonx Orchestrate Extension
 
-This folder contains an optional watsonx Orchestrate integration for RepoQuest.
+This folder contains the watsonx Orchestrate integration for RepoQuest.
 
-The hackathon requirement is IBM Bob usage. Orchestrate is a stretch addition: it lets us present RepoQuest as an agent tool that can be called from a `RepoQuest Coach` agent.
+It lets RepoQuest run as a tool that can be called from a `RepoQuest Coach` agent. The final submission includes a 90-second screen recording of the deployed agent in [`../submission/orchestrate-agent-demo.mp4`](../submission/orchestrate-agent-demo.mp4).
 
 ## What This Adds
 

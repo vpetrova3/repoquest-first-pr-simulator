@@ -192,6 +192,7 @@ JSON missions, summary, first PR plan
 - **App:** [your-vercel-url].vercel.app
 - **Repo:** github.com/vpetrova3/repoquest-first-pr-simulator
 - **Bob evidence:** repo → `/bob_sessions/`
+- **Orchestrate agent clip:** repo -> `/submission/orchestrate-agent-demo.mp4`
 - **Demo video:** [YouTube link if hosted]
 
 Thank you to **IBM** for Bob and watsonx access, **LabLab** for running the hackathon, and the **TodoMVC team** for being a generous demo target.

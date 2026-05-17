@@ -1358,6 +1358,8 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   color: var(--muted-strong);
   font-size: 0.92rem;
   line-height: 1.55;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .pr-plan-card ol li::marker, .report-panel ol li::marker {
@@ -1371,6 +1373,8 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   gap: 14px;
   position: relative;
   background: var(--code-bg-soft);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .pr-preview-head {
@@ -1436,9 +1440,20 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   font-family: "JetBrains Mono", ui-monospace, monospace;
   font-size: 0.8rem;
   color: var(--text-soft);
+  min-width: 0;
 }
 
-.pr-file-row .file-icon { color: var(--teal); }
+.pr-file-row .file-icon { color: var(--teal); flex-shrink: 0; }
+
+.pr-file-row > span:not(.file-diff) {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pr-file-row .file-diff { flex-shrink: 0; }
 
 .pr-file-row .file-diff {
   margin-left: auto;

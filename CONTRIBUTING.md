@@ -98,8 +98,8 @@ Open a pull request into `main`. Keep the PR description short:
 | GitHub analysis | `api/analyze.js`, `scripts/serve.mjs` |
 | watsonx Granite integration | `api/llm.js`, `api/llm/status.js`, `api/_watsonx.js` |
 | Orchestrate agent tool | `orchestrate/`, `api/orchestrate/repo-brief.js`, `api/_repoquest.js` |
-| IBM Bob evidence | `bob_sessions/`, `docs/bob-runbook.md` |
-| Submission materials | `submission/`, `docs/orchestrate-demo-plan.md` |
+| IBM Bob evidence | `bob_sessions/`, `bob_sessions/README.md` |
+| Submission materials | `submission/`, `submission/orchestrate-agent-video.md` |
 
 ## IBM Bob Evidence
 

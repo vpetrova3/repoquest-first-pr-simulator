@@ -43,7 +43,7 @@ The app stays useful even without AI credentials: the heuristic layer still rend
 | Heuristic engine | Provides instant output without relying on an LLM. | [`app.js`](app.js), [`api/_repoquest.js`](api/_repoquest.js) |
 | watsonx Granite layer | Upgrades summary, missions, and first PR plan with live Granite output. | [`api/llm.js`](api/llm.js), [`api/llm/status.js`](api/llm/status.js), [`api/_watsonx.js`](api/_watsonx.js) |
 | Orchestrate agent tool | Lets a `RepoQuest Coach` agent call RepoQuest as an onboarding tool; video evidence lives in submission materials. | [`orchestrate/`](orchestrate/), [`api/orchestrate/repo-brief.js`](api/orchestrate/repo-brief.js), [`submission/orchestrate-agent-video.md`](submission/orchestrate-agent-video.md) |
-| Bob evidence | Proves Bob was used in the build process, not just mentioned in the pitch. | [`bob_sessions/`](bob_sessions/), [`docs/bob-runbook.md`](docs/bob-runbook.md) |
+| Bob evidence | Proves Bob was used in the build process, not just mentioned in the pitch. | [`bob_sessions/`](bob_sessions/), [`bob_sessions/README.md`](bob_sessions/README.md) |
 | Submission materials | Cover image, slide outline, and demo narration. | [`submission/`](submission/) |
 
 ## How The Architecture Works

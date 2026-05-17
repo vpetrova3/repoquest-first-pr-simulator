@@ -7,8 +7,8 @@ It lets RepoQuest run as a tool that can be called from a `RepoQuest Coach` agen
 ## What This Adds
 
 - `repoquest-openapi.yaml` — OpenAPI tool definition for watsonx Orchestrate.
-- `agent-instructions.md` — copy-ready agent profile, instructions, starter prompts, and demo script.
 - `/api/orchestrate/repo-brief` — RepoQuest endpoint that returns a concise onboarding brief for a GitHub repo.
+- `../submission/orchestrate-agent-video.md` — concise explanation of the final Orchestrate video evidence.
 
 ## Setup
 
@@ -23,8 +23,8 @@ It lets RepoQuest run as a tool that can be called from a `RepoQuest Coach` agen
 
 3. In watsonx Orchestrate, create a new agent named `RepoQuest Coach`.
 4. Import `repoquest-openapi.yaml` as an OpenAPI tool.
-5. Copy the profile and instructions from `agent-instructions.md`.
-6. Deploy the agent.
+5. Configure the agent to call `createRepoQuestBrief` when a user provides a GitHub repository URL.
+6. Deploy the agent and record the 90-second evidence clip for `../submission/orchestrate-agent-demo.mp4`.
 
 ## Test Locally
 

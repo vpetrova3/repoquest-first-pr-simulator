@@ -604,6 +604,9 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   padding: 7px 0 7px 18px;
   line-height: 1.5;
   border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .evidence-list li:last-child, .report-panel ul li:last-child {
@@ -1348,6 +1351,7 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
 .pr-plan-card, .report-panel {
   padding: 20px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .pr-plan-card ol, .report-panel ol {

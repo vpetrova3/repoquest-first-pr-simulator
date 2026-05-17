@@ -1,19 +1,12 @@
 # Contributing To RepoQuest
 
-Use this guide when a teammate needs to clone the repo, run the app, make changes, and push work back to GitHub.
+RepoQuest is in final hackathon submission mode. Keep changes focused, reviewable, and safe for a public repository.
 
-## 1. Clone The Repository
+## Quick Start
 
 ```bash
 git clone https://github.com/vpetrova3/repoquest-first-pr-simulator.git
 cd repoquest-first-pr-simulator
-```
-
-## 2. Run The App
-
-This prototype does not require package installation.
-
-```bash
 node scripts/serve.mjs
 ```
 
@@ -23,123 +16,131 @@ Open:
 http://localhost:4173
 ```
 
-If `node` is missing, install Node.js from the official Node.js website or use a teammate machine that already has Node available.
+No package installation is required for normal development. If Node is missing, install Node.js first.
 
-### Private Repositories
+## Environment Variables
 
-To analyze private GitHub repositories, start the server with a read-only GitHub token:
+Create a local `.env` only if you need live AI or private repo testing. Never commit it.
 
-```bash
-export GITHUB_TOKEN="paste_your_token_here"
-node scripts/serve.mjs
-```
+Useful variables:
 
-Use a fine-grained personal access token with repository contents read access only. Never commit this token, paste it into frontend files, or include it in screenshots.
+- `WATSONX_API_KEY` - IBM Cloud API key for live Granite output.
+- `WATSONX_PROJECT_ID` - watsonx.ai project ID.
+- `WATSONX_URL` - optional region URL, defaults to `https://us-south.ml.cloud.ibm.com`.
+- `WATSONX_MODEL_ID` - optional Granite model override.
+- `GITHUB_TOKEN` - optional read-only GitHub token for private repository analysis.
 
-Public repositories still work without a token. If a private repository says it was not found, check that the token has access to that exact repo and that any required organization SSO authorization is complete.
+Public GitHub repositories work without `GITHUB_TOKEN`. Private repositories require a server-side token with read-only repository contents access. Do not paste tokens into the app UI, source files, screenshots, issue comments, pull requests, or Bob prompts.
 
-## 3. Get The Latest Code Before Editing
+## Branch Workflow
+
+Start from the latest `main`:
 
 ```bash
 git checkout main
 git pull origin main
 ```
 
-## 4. Create A Feature Branch
-
-Use a short branch name that describes the work:
+Create a short branch:
 
 ```bash
-git checkout -b feature/demo-polish
+git checkout -b docs/final-readme
 ```
 
-Good examples:
+Good branch examples:
 
-- `feature/bob-session-docs`
-- `feature/readiness-report-copy`
-- `fix/mobile-layout`
-- `docs/submission-checklist`
+- `docs/bob-evidence`
+- `fix/mobile-overlap`
+- `feature/orchestrate-proof`
+- `docs/submission-polish`
 
-## 5. Make Changes
+## Before You Commit
 
-Edit the files, then check what changed:
+Check the files you changed:
 
 ```bash
 git status
 git diff
 ```
 
-For JavaScript changes, run:
+Run syntax checks for JavaScript changes:
 
 ```bash
 node --check app.js
 node --check scripts/serve.mjs
+node --check api/analyze.js
+node --check api/llm.js
+node --check api/llm/status.js
+node --check api/_watsonx.js
+node --check api/_repoquest.js
+node --check api/orchestrate/repo-brief.js
 ```
 
-## 6. Commit Changes
-
-Stage the files:
+## Commit And Push
 
 ```bash
-git add README.md docs/bob-prompts.md
+git add README.md CONTRIBUTING.md
+git commit -m "Polish final project docs"
+git push -u origin docs/final-readme
 ```
 
-Or stage everything you changed:
+Open a pull request into `main`. Keep the PR description short:
+
+- What changed
+- How it was tested
+- Whether any screenshots or secrets were reviewed
+
+## Contribution Areas
+
+| Area | Files |
+|---|---|
+| Frontend UI and interactions | `index.html`, `styles.css`, `app.js` |
+| GitHub analysis | `api/analyze.js`, `scripts/serve.mjs` |
+| watsonx Granite integration | `api/llm.js`, `api/llm/status.js`, `api/_watsonx.js` |
+| Orchestrate agent tool | `orchestrate/`, `api/orchestrate/repo-brief.js`, `api/_repoquest.js` |
+| IBM Bob evidence | `bob_sessions/`, `docs/bob-runbook.md` |
+| Submission materials | `submission/`, `docs/orchestrate-demo-plan.md` |
+
+## IBM Bob Evidence
+
+When adding Bob evidence:
+
+1. Export the task history markdown from IBM Bob.
+2. Capture the task session consumption screenshot.
+3. Add both files to `bob_sessions/`.
+4. Confirm there are no tokens, API keys, private URLs, emails, or billing/account pages in the export or screenshot.
+5. Commit the evidence with a clear message.
+
+Useful task types:
+
+- Repository analysis
+- Mission generation
+- First PR plan review
+- watsonx integration review
+- Demo script polish
+
+## Private Repository Testing
+
+Use a fine-grained GitHub personal access token with the least access possible.
 
 ```bash
-git add .
+export GITHUB_TOKEN="paste_read_only_token_here"
+node scripts/serve.mjs
 ```
 
-Commit with a clear message:
+If a private repo returns "not found":
 
-```bash
-git commit -m "Improve Bob prompt documentation"
-```
-
-## 7. Push Your Branch
-
-```bash
-git push -u origin feature/demo-polish
-```
-
-Then open a pull request on GitHub into `main`.
-
-## 8. Merge Or Update Main
-
-After the pull request is approved and merged:
-
-```bash
-git checkout main
-git pull origin main
-```
-
-## 9. Adding IBM Bob Evidence
-
-The hackathon requires IBM Bob task session reports.
-
-When adding Bob exports:
-
-1. Open the project in IBM Bob IDE.
-2. Run a focused Bob task such as repo analysis, mission generation, PR plan, or app review.
-3. Export the task history markdown.
-4. Screenshot the task session consumption summary.
-5. Add both files to `bob_sessions/`.
-6. Check that no credentials, tokens, API keys, or private data are visible.
-7. Commit and push the files.
-
-Example:
-
-```bash
-git checkout -b docs/bob-session-exports
-git add bob_sessions/
-git commit -m "Add IBM Bob session exports"
-git push -u origin docs/bob-session-exports
-```
+- Confirm the token has access to that exact repository.
+- Confirm organization SSO is authorized if required.
+- Confirm the token has not expired.
+- Confirm the token is set in the same terminal session running the server.
 
 ## Safety Rules
 
 - Do not commit `.env` files.
 - Do not commit IBM Cloud credentials.
-- Do not commit API keys or tokens.
-- Review screenshots before pushing them.
+- Do not commit GitHub tokens.
+- Do not show keys in demo recordings.
+- Review screenshots before pushing.
+- Avoid unrelated refactors during final submission.
 - Pull latest `main` before starting new work.

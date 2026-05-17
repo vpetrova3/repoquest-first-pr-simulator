@@ -56,6 +56,21 @@ RepoQuest can also be wrapped as a watsonx Orchestrate agent tool. This is optio
 - [`orchestrate/agent-instructions.md`](orchestrate/agent-instructions.md) — copy-ready `RepoQuest Coach` agent profile and prompts.
 - `/api/orchestrate/repo-brief` — deployed endpoint that returns repo metadata, architecture layers, missions, first PR plan, and readiness signals.
 
+Where the Orchestrate agent lives:
+
+- **Agent profile:** [`orchestrate/agent-instructions.md`](orchestrate/agent-instructions.md) contains the `RepoQuest Coach` name, description, instructions, starter prompts, and demo script to paste into watsonx Orchestrate.
+- **Tool definition:** [`orchestrate/repoquest-openapi.yaml`](orchestrate/repoquest-openapi.yaml) is the OpenAPI tool import. Its `createRepoQuestBrief` operation calls the deployed RepoQuest API.
+- **Tool endpoint:** [`api/orchestrate/repo-brief.js`](api/orchestrate/repo-brief.js) is the Vercel serverless route Orchestrate calls.
+- **Brief builder:** [`api/_repoquest.js`](api/_repoquest.js) fetches the GitHub repo snapshot and builds the architecture layers, missions, first PR plan, and readiness score returned to the agent.
+- **Local testing:** [`scripts/serve.mjs`](scripts/serve.mjs) exposes the same `/api/orchestrate/repo-brief` route when running locally.
+
+How to demo it:
+
+1. Create a watsonx Orchestrate agent named `RepoQuest Coach`.
+2. Import [`orchestrate/repoquest-openapi.yaml`](orchestrate/repoquest-openapi.yaml) as an OpenAPI tool.
+3. Paste the profile and instructions from [`orchestrate/agent-instructions.md`](orchestrate/agent-instructions.md).
+4. Ask: `Analyze https://github.com/tastejs/todomvc and recommend a first PR.`
+
 Demo story: **Bob helped build RepoQuest, watsonx.ai powers the live Granite layer, and watsonx Orchestrate can expose RepoQuest as a reusable onboarding agent.**
 
 ## Architecture

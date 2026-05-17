@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">RepoQuest: First PR Simulator</title>
+  <desc id="desc">Cover image for RepoQuest, a first-PR simulator for new developers, built for the IBM Bob hackathon and powered live by IBM watsonx Granite.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070c10"/>
+      <stop offset="0.5" stop-color="#0c141a"/>
+      <stop offset="1" stop-color="#070c10"/>
+    </linearGradient>
+    <linearGradient id="tealGrad" x1="0" y1="0" x2="1" y2="0.5">
+      <stop offset="0" stop-color="#5eddc3"/>
+      <stop offset="1" stop-color="#2dbfa8"/>
+    </linearGradient>
+    <linearGradient id="accentLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2dbfa8" stop-opacity="0"/>
+      <stop offset="0.18" stop-color="#2dbfa8"/>
+      <stop offset="0.6" stop-color="#6a8fd9"/>
+      <stop offset="1" stop-color="#6a8fd9" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glowTeal" cx="12%" cy="20%" r="55%">
+      <stop offset="0" stop-color="#2dbfa8" stop-opacity="0.30"/>
+      <stop offset="0.5" stop-color="#2dbfa8" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#2dbfa8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowBlue" cx="86%" cy="82%" r="60%">
+      <stop offset="0" stop-color="#6a8fd9" stop-opacity="0.26"/>
+      <stop offset="0.5" stop-color="#6a8fd9" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#6a8fd9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ringInner" cx="50%" cy="50%" r="60%">
+      <stop offset="0" stop-color="#2dbfa8" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#2dbfa8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ringStroke" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2dbfa8"/>
+      <stop offset="1" stop-color="#6a8fd9"/>
+    </linearGradient>
+    <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5eddc3"/>
+      <stop offset="1" stop-color="#2dbfa8"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="28" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+    <filter id="ringGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse">
+      <path d="M56 0H0V56" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <style>
+      .f { font-family: Inter, "SF Pro Display", "Segoe UI", system-ui, sans-serif; }
+      .mono { font-family: "JetBrains Mono", SFMono-Regular, Menlo, Consolas, monospace; }
+      .white { fill: #f4f8f7; }
+      .soft { fill: #c8d0d2; }
+      .muted { fill: #94a09f; }
+      .teal { fill: #2dbfa8; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#glowTeal)"/>
+  <rect width="1600" height="900" fill="url(#glowBlue)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+
+  <path d="M0 760C260 700 440 740 620 720C840 696 940 600 1140 614C1340 628 1430 750 1600 720V900H0Z" fill="#2dbfa8" opacity="0.04"/>
+  <path d="M0 820C200 790 380 810 540 798C740 783 880 720 1080 730C1300 740 1430 800 1600 778V900H0Z" fill="#6a8fd9" opacity="0.04"/>
+
+  <g class="f" transform="translate(88 76)">
+    <rect x="0" y="0" width="68" height="68" rx="16" fill="url(#tealGrad)"/>
+    <text x="34" y="44" text-anchor="middle" font-size="25" font-weight="900" fill="#062a25" letter-spacing="0.5">RQ</text>
+    <text x="88" y="32" font-size="28" font-weight="900" class="white" letter-spacing="0">RepoQuest</text>
+    <text x="89" y="57" font-size="14" font-weight="800" letter-spacing="3" class="muted">FIRST PR SIMULATOR</text>
+  </g>
+
+  <g class="f" transform="translate(1184 86)">
+    <rect x="0" y="0" width="328" height="46" rx="23" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.14"/>
+    <circle cx="26" cy="23" r="6" fill="#2dbfa8"/>
+    <text x="44" y="30" font-size="16" font-weight="800" letter-spacing="0.4" class="white">IBM Bob Hackathon</text>
+    <text x="226" y="30" font-size="16" font-weight="700" letter-spacing="0.4" class="muted">May 2026</text>
+  </g>
+
+  <g class="f" transform="translate(88 264)">
+    <text x="0" y="0" font-size="16" font-weight="900" letter-spacing="6" class="teal">DEVELOPER ONBOARDING / REIMAGINED</text>
+
+    <text x="0" y="112" font-size="96" font-weight="950" class="white" letter-spacing="0">From a fresh clone</text>
+    <text x="0" y="224" font-size="96" font-weight="950" class="white" letter-spacing="0">to your</text>
+    <text x="340" y="224" font-size="96" font-weight="950" fill="#2dbfa8" letter-spacing="0">first PR.</text>
+
+    <rect x="2" y="266" width="220" height="6" rx="3" fill="url(#accentLine)"/>
+
+    <text x="0" y="328" font-size="26" font-weight="500" class="soft" letter-spacing="0">Turn any GitHub repository into a guided journey for new contributors.</text>
+    <text x="0" y="362" font-size="26" font-weight="500" class="muted" letter-spacing="0">Repository map, beginner-safe missions, reviewer-ready first PR plan.</text>
+  </g>
+
+  <g class="f" transform="translate(1064 220)">
+    <g transform="translate(180 180)">
+      <circle cx="0" cy="0" r="192" fill="url(#ringInner)"/>
+      <circle cx="0" cy="0" r="160" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="14"/>
+      <circle cx="0" cy="0" r="160" fill="none" stroke="url(#ringStroke)" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="1005" stroke-dashoffset="60" transform="rotate(-90)" filter="url(#ringGlow)"/>
+      <text x="0" y="14" text-anchor="middle" font-size="124" font-weight="950" fill="#2dbfa8" letter-spacing="-4">94</text>
+      <text x="0" y="56" text-anchor="middle" font-size="18" font-weight="850" letter-spacing="3" class="muted">FIRST PR READY</text>
+    </g>
+
+    <g transform="translate(0 408)">
+      <rect x="0" y="0" width="172" height="74" rx="18" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.14"/>
+      <text x="20" y="29" font-size="13" font-weight="900" letter-spacing="2.5" class="muted">MISSIONS</text>
+      <text x="20" y="58" font-size="26" font-weight="900" class="white">5 steps</text>
+
+      <rect x="188" y="0" width="172" height="74" rx="18" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.14"/>
+      <text x="208" y="29" font-size="13" font-weight="900" letter-spacing="2.5" class="muted">TIME TO PR</text>
+      <text x="208" y="58" font-size="26" font-weight="900" class="white">2h 05m</text>
+    </g>
+  </g>
+
+  <g class="f" transform="translate(88 712)">
+    <text x="0" y="-22" font-size="14" font-weight="900" letter-spacing="3.5" class="muted">THE FLOW</text>
+    <path d="M30 30 L820 30" fill="none" stroke="url(#accentLine)" stroke-width="3" stroke-dasharray="0"/>
+    <g>
+      <circle cx="30" cy="30" r="22" fill="#070c10" stroke="#2dbfa8" stroke-width="3"/>
+      <text x="30" y="38" text-anchor="middle" font-size="17" font-weight="900" class="white">1</text>
+      <text x="0" y="80" font-size="19" font-weight="800" class="white">Paste repo</text>
+      <text x="0" y="104" font-size="15" class="muted">GitHub URL</text>
+    </g>
+    <g transform="translate(280 0)">
+      <circle cx="30" cy="30" r="22" fill="#070c10" stroke="#6a8fd9" stroke-width="3"/>
+      <text x="30" y="38" text-anchor="middle" font-size="17" font-weight="900" class="white">2</text>
+      <text x="0" y="80" font-size="19" font-weight="800" class="white">Map the code</text>
+      <text x="0" y="104" font-size="15" class="muted">Architecture / files</text>
+    </g>
+    <g transform="translate(540 0)">
+      <circle cx="30" cy="30" r="22" fill="#070c10" stroke="#2dbfa8" stroke-width="3"/>
+      <text x="30" y="38" text-anchor="middle" font-size="17" font-weight="900" class="white">3</text>
+      <text x="0" y="80" font-size="19" font-weight="800" class="white">Run missions</text>
+      <text x="0" y="104" font-size="15" class="muted">Mentor hints / tests</text>
+    </g>
+    <g transform="translate(790 0)">
+      <circle cx="30" cy="30" r="22" fill="#070c10" stroke="#f0b35f" stroke-width="3"/>
+      <text x="30" y="38" text-anchor="middle" font-size="17" font-weight="900" class="white">4</text>
+      <text x="0" y="80" font-size="19" font-weight="800" class="white">Draft the PR</text>
+      <text x="0" y="104" font-size="15" class="muted">Reviewer-ready</text>
+    </g>
+  </g>
+
+  <g class="f" transform="translate(88 856)">
+    <text x="0" y="0" font-size="16" font-weight="700" class="muted">Designed with </text>
+    <text x="115" y="0" font-size="16" font-weight="900" class="white">IBM Bob</text>
+    <text x="184" y="0" font-size="16" font-weight="700" class="muted"> / Powered live by </text>
+    <text x="325" y="0" font-size="16" font-weight="900" class="white">watsonx Granite</text>
+    <text x="1112" y="0" font-size="15" font-weight="700" class="muted mono">github.com/vpetrova3/repoquest-first-pr-simulator</text>
+  </g>
+</svg>

@@ -32,7 +32,7 @@ The app stays useful even without AI credentials: the heuristic layer still rend
 
 **IBM watsonx.ai with Granite** powers the live LLM layer. The frontend first renders heuristic output, then calls the server-side `/api/llm` route to ask Granite for repo-grounded improvements. The status badge makes this visible during the demo: offline, enhancing, then live.
 
-**IBM watsonx Orchestrate** wraps RepoQuest as a conversational onboarding workflow. The `RepoQuest Coach` agent accepts a GitHub URL, calls the RepoQuest OpenAPI tool, and returns a beginner-friendly first PR recommendation. The 90-second video evidence should live at [`submission/orchestrate-agent-demo.mp4`](submission/orchestrate-agent-demo.mp4).
+**IBM watsonx Orchestrate** wraps RepoQuest as a conversational onboarding workflow. The `RepoQuest Coach` agent accepts a GitHub URL, calls the RepoQuest OpenAPI tool, and returns a beginner-friendly first PR recommendation. The 90-second video evidence should live at https://youtu.be/qX_39DoAQms.
 
 ## Product Components
 

@@ -13,8 +13,10 @@ If watsonx is unconfigured or unavailable, RepoQuest stays useful via the heuris
 
 - **Deployed app:** https://repoquest-first-pr-simulator.vercel.app
 - **Public repo:** https://github.com/vpetrova3/repoquest-first-pr-simulator
+- **Orchestrate tool check:** https://repoquest-first-pr-simulator.vercel.app/api/orchestrate/repo-brief?repo=https%3A%2F%2Fgithub.com%2Ftastejs%2Ftodomvc
 - **Bob session evidence:** [`bob_sessions/`](./bob_sessions/)
 - **Cover image / slides / video script:** [`submission/`](./submission/)
+- **Orchestrate demo plan:** [`docs/orchestrate-demo-plan.md`](docs/orchestrate-demo-plan.md)
 
 ## Run locally
 
@@ -70,6 +72,8 @@ How to demo it:
 2. Import [`orchestrate/repoquest-openapi.yaml`](orchestrate/repoquest-openapi.yaml) as an OpenAPI tool.
 3. Paste the profile and instructions from [`orchestrate/agent-instructions.md`](orchestrate/agent-instructions.md).
 4. Ask: `Analyze https://github.com/tastejs/todomvc and recommend a first PR.`
+
+If the deployed Orchestrate agent cannot be shared publicly because it is scoped to a teammate's IBM Cloud account, use the public Vercel tool endpoint above plus a short screen recording of the teammate's agent running the prompt. The exact backup plan is in [`docs/orchestrate-demo-plan.md`](docs/orchestrate-demo-plan.md).
 
 Demo story: **Bob helped build RepoQuest, watsonx.ai powers the live Granite layer, and watsonx Orchestrate can expose RepoQuest as a reusable onboarding agent.**
 

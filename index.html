@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css" />
+    <link rel="stylesheet" id="hljsThemeLink" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css" />
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
@@ -48,6 +48,20 @@
             <i data-lucide="circle-dot" aria-hidden="true"></i>
             Ready
           </div>
+          <button
+            class="theme-toggle"
+            type="button"
+            id="themeToggle"
+            aria-label="Toggle theme"
+            title="Toggle theme (⇧⌘L)"
+          >
+            <span class="theme-toggle-track">
+              <span class="theme-toggle-thumb" aria-hidden="true">
+                <i data-lucide="moon" class="theme-icon-dark" aria-hidden="true"></i>
+                <i data-lucide="sun" class="theme-icon-light" aria-hidden="true"></i>
+              </span>
+            </span>
+          </button>
         </div>
       </header>
 
@@ -88,7 +102,8 @@
             </div>
             <div class="shortcut-hint" aria-hidden="true">
               <kbd>⌘</kbd><kbd>K</kbd> focus &nbsp;·&nbsp;
-              <kbd>⌘</kbd><kbd>⏎</kbd> analyze
+              <kbd>⌘</kbd><kbd>⏎</kbd> analyze &nbsp;·&nbsp;
+              <kbd>⇧⌘L</kbd> theme
             </div>
           </section>
 
@@ -235,10 +250,16 @@
                 <div class="section-kicker">First PR Plan</div>
                 <h2 id="prTitle">Clarify setup instructions for new contributors</h2>
               </div>
-              <button class="ghost-button" type="button" id="copyPlanButton">
-                <i data-lucide="copy" aria-hidden="true"></i>
-                <span>Copy Plan</span>
-              </button>
+              <div class="pr-actions">
+                <button class="ghost-button" type="button" id="copyPlanButton">
+                  <i data-lucide="copy" aria-hidden="true"></i>
+                  <span>Copy Plan</span>
+                </button>
+                <button class="ghost-button" type="button" id="downloadPlanButton">
+                  <i data-lucide="download" aria-hidden="true"></i>
+                  <span>Download .md</span>
+                </button>
+              </div>
             </div>
             <div class="pr-grid">
               <article class="pr-preview" aria-label="Mock GitHub PR preview">

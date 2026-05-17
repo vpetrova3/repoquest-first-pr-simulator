@@ -47,7 +47,7 @@
   --tag-bg: rgba(255, 255, 255, 0.06);
   --segment-bg: rgba(0, 0, 0, 0.2);
   --ring-track: rgba(255, 255, 255, 0.06);
-  --teal-light: var(--teal-light);
+  --teal-light: #5eddc3;
   --hljs-theme-href: "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css";
 }
 
@@ -238,6 +238,73 @@ code, pre, .mono {
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.theme-toggle {
+  --toggle-w: 54px;
+  --toggle-h: 30px;
+  position: relative;
+  width: var(--toggle-w);
+  height: var(--toggle-h);
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-strong);
+  border-color: var(--line-strong);
+}
+
+.theme-toggle-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);
+  box-shadow: 0 4px 10px var(--teal-glow);
+  display: grid;
+  place-items: center;
+  transition: left var(--transition), background var(--transition);
+}
+
+[data-theme="light"] .theme-toggle-thumb {
+  left: calc(var(--toggle-w) - 22px - 4px);
+  background: linear-gradient(135deg, #f0b35f 0%, #e0913f 100%);
+  box-shadow: 0 4px 10px rgba(240, 179, 95, 0.4);
+}
+
+.theme-toggle-thumb svg {
+  width: 12px;
+  height: 12px;
+  color: #062a25;
+  position: absolute;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.theme-toggle-thumb .theme-icon-dark { opacity: 1; transform: rotate(0deg); }
+.theme-toggle-thumb .theme-icon-light { opacity: 0; transform: rotate(-90deg); color: #1a1209; }
+
+[data-theme="light"] .theme-toggle-thumb .theme-icon-dark { opacity: 0; transform: rotate(90deg); }
+[data-theme="light"] .theme-toggle-thumb .theme-icon-light { opacity: 1; transform: rotate(0deg); }
+
+.theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--teal-glow);
 }
 
 .status-pill {
@@ -1255,6 +1322,12 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--text-soft);
+}
+
+.pr-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .pr-grid {

@@ -9,7 +9,7 @@ Built for the **IBM Bob Hackathon, May 2026**.
 - **App:** https://repoquest-first-pr-simulator.vercel.app
 - **Repository:** https://github.com/vpetrova3/repoquest-first-pr-simulator
 - **IBM Bob evidence:** [`bob_sessions/`](./bob_sessions/)
-- **watsonx Orchestrate video evidence:** [`submission/orchestrate-agent-demo.mp4`](submission/orchestrate-agent-demo.mp4)
+- **watsonx Orchestrate video evidence:** https://youtu.be/qX_39DoAQms
 - **Submission assets:** [`submission/`](./submission/)
 
 ## What It Does

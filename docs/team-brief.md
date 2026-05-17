@@ -199,7 +199,7 @@ Recommended filenames:
 - Technology/category tags
 - No secrets or credentials committed
 
-## Judging Strategy
+## Strategy
 
 - Application of Technology: show Bob-powered repo understanding, mission generation, test suggestions, and first PR planning.
 - Presentation: keep the demo story simple: unfamiliar repo to guided missions to first PR readiness.

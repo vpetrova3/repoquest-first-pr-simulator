@@ -6,7 +6,7 @@ info:
     OpenAPI tool for IBM watsonx Orchestrate. It lets a RepoQuest Coach agent
     analyze a GitHub repository URL and return a first pull request onboarding brief.
 servers:
-  - url: https://YOUR-VERCEL-APP.vercel.app
+  - url: https://repoquest-first-pr-simulator.vercel.app/
     description: Replace this with the deployed RepoQuest URL before importing.
 paths:
   /api/orchestrate/repo-brief:

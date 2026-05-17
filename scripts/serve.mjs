@@ -1,9 +1,11 @@
-import { createReadStream, existsSync, statSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { createServer } from "node:http";
 import { buildRepoQuestBrief } from "../api/_repoquest.js";
 
 const root = resolve(process.cwd());
+loadLocalEnv(resolve(root, ".env"));
+
 const port = Number(process.env.PORT || 4173);
 const githubToken = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
 
@@ -26,6 +28,23 @@ const mimeTypes = new Map([
   [".jpg", "image/jpeg"],
   [".jpeg", "image/jpeg"],
 ]);
+
+function loadLocalEnv(filePath) {
+  if (!existsSync(filePath)) return;
+  const raw = readFileSync(filePath, "utf8");
+  raw.split(/\r?\n/).forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) return;
+    const eq = trimmed.indexOf("=");
+    const key = trimmed.slice(0, eq).trim();
+    if (!key || process.env[key] !== undefined) return;
+    let value = trimmed.slice(eq + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    process.env[key] = value;
+  });
+}
 
 const server = createServer(async (request, response) => {
   const url = new URL(request.url || "/", `http://${request.headers.host}`);

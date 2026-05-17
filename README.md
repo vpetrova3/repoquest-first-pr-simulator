@@ -11,7 +11,7 @@ If watsonx is unconfigured or unavailable, RepoQuest stays useful via the heuris
 
 ## Demo
 
-- **Deployed app:** _add your Vercel URL here after deploying_
+- **Deployed app:** https://repoquest-first-pr-simulator.vercel.app
 - **Public repo:** https://github.com/vpetrova3/repoquest-first-pr-simulator
 - **Bob session evidence:** [`bob_sessions/`](./bob_sessions/)
 - **Cover image / slides / video script:** [`submission/`](./submission/)

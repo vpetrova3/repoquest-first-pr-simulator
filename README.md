@@ -133,7 +133,7 @@ The Orchestrate layer packages RepoQuest as a conversational agent workflow:
 - `RepoQuest Coach` is the watsonx Orchestrate agent.
 - `createRepoQuestBrief` is the OpenAPI tool imported into Orchestrate.
 - `/api/orchestrate/repo-brief` is the deployed route that returns a structured onboarding brief.
-- [`submission/orchestrate-agent-demo.mp4`](submission/orchestrate-agent-demo.mp4) is the expected path for the 90-second video evidence.
+-  https://youtu.be/qX_39DoAQms is the path for the 90-second video evidence.
 
 The demo prompt used in the recording:
 

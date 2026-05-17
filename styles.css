@@ -1156,6 +1156,8 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   color: var(--muted-strong);
   font-size: 0.86rem;
   line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .mission-meta {
@@ -1228,6 +1230,8 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   color: var(--muted-strong);
   margin-bottom: 22px;
   line-height: 1.65;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .mission-detail h3 {
@@ -1313,6 +1317,8 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   color: var(--muted-strong);
   font-size: 0.9rem;
   line-height: 1.55;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .hint-item.revealed .hint-body { display: block; }
@@ -1334,6 +1340,9 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--text-soft);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .pr-actions {

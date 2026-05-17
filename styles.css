@@ -978,6 +978,12 @@ textarea { min-height: 380px; padding: 14px; resize: vertical; line-height: 1.5;
   animation: dash-flow 30s linear infinite;
 }
 
+.arch-svg-wrap .arch-item-pill {
+  fill: var(--pill-soft-bg);
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
 @keyframes dash-flow {
   to { stroke-dashoffset: -200; }
 }

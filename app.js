@@ -1462,8 +1462,7 @@ function renderArchitecture() {
           const py = startY + row * (pillHeight + pillGap);
           return `
             <g>
-              <rect x="${px}" y="${py}" width="${pillWidth}" height="${pillHeight}" rx="10"
-                fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+              <rect class="arch-item-pill" x="${px}" y="${py}" width="${pillWidth}" height="${pillHeight}" rx="10" />
               <text x="${px + 12}" y="${py + pillHeight / 2 + 4}" class="arch-node-sub" text-anchor="start">
                 ${escapeHtml(truncate(item, 32))}
               </text>

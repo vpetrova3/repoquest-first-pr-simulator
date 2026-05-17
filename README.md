@@ -12,6 +12,20 @@ Built for the **IBM Bob Hackathon, May 2026**.
 - **watsonx Orchestrate video evidence:** https://youtu.be/qX_39DoAQms
 - **Submission assets:** [`submission/`](./submission/)
 
+
+## Team Members
+
+**Team:** Worldwide
+
+- Viktoriya Petrova
+
+- Camelia Zamora
+
+- Hanuel José Martínez Guzmán
+
+- Ujjwal Gupta
+
+  
 ## What It Does
 
 RepoQuest is designed for interns, new hires, hackathon teammates, and first-time open-source contributors who need a safe path into an unfamiliar codebase.
